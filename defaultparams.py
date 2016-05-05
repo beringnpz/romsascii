@@ -739,9 +739,44 @@ def feast():
         [16,  60,   60,   60,   60,   60,   60,   60,   60,   60,   60,   60,   60,   60,   60,   60]
       ]
     }
+    # In some of these matrices, float values are typed as integers... quick 
+    # correction of that 
+ 
+    checkfloats(d)
+                              
+    
+    
     dnpz = bestnpz()
 
     return merge_dicts(dnpz, d)
+    
+def checkfloats(x):
+    """
+    Withib dict, change lists of mixed floats and integers to all floats
+    """
+    for ky in x.keys():
+        if isinstance(x[ky], list):
+            if isinstance(x[ky][0], list):
+                x[ky] = [list2floats(i) for i in x[ky]]
+            else:
+                x[ky] = list2floats(x[ky])
+        elif isinstance(x[ky], dict):
+            x[ky] = checkfloats(x[ky])
+    return x
+            
+    
+def list2floats(x):
+    """
+    Change list of mixed floats and integers to all floats
+    """
+    if isinstance(x[0], (float,int)):
+        if not (all(isinstance(y, float) for y in x) or
+                all(isinstance(y, int) for y in x)):
+            x = [float(i) for i in x]
+    return x
+        
+    
+    
     
 def merge_dicts(*dict_args):
     '''

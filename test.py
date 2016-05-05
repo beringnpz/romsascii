@@ -8,17 +8,18 @@ Created on Mon May  2 10:21:05 2016
 import romsascii as r
 import defaultparams
 import bering10kinput as b10k
-import datetime
+from datetime import datetime, timedelta
 
 #--------------------
 # Setup
 #--------------------
 
-# Default physical parameters   
+# Default parameters: physical and NPZ 
     
 ocean = defaultparams.ocean()  
+npz = defaultparams.bestnpz()
 
-# Fill in Bering 10K input files
+# Fill in Bering 10K input files, using CORE forcing
   
 b10k.ini_frc_bry(ocean, '/share/storage2/Bering10k_input', 'core')
 b10k.other_in(ocean, '/share/storage2/Bering10k_input')
@@ -30,18 +31,18 @@ b10k.other_in(ocean, '/share/storage2/Bering10k_input')
 # Time step = 600 s, halved to get across blowups
 
 timevars = {
-'tstep'     : datetime.timedelta(seconds=600),
-'datestart' : datetime.datetime(1969,1,16),
-'dateend'   : datetime.datetime(1971,3,1),
-'tref'      : datetime.datetime(1900,1,1),
-'dthis'     : datetime.timedelta(weeks=1),
-'dtavg'     : datetime.timedelta(weeks=1),
-'dtsta'     : datetime.timedelta(hours=1),
-'dtdefhis'  : datetime.timedelta(weeks=10),
-'dtdefavg'  : datetime.timedelta(weeks=10)}
+'tstep'     : timedelta(seconds=600),
+'datestart' : datetime(1969,1,16),
+'dateend'   : datetime(1971,3,1),
+'tref'      : datetime(1900,1,1),
+'dthis'     : timedelta(weeks=1),
+'dtavg'     : timedelta(weeks=1),
+'dtsta'     : timedelta(hours=1),
+'dtdefhis'  : timedelta(weeks=10),
+'dtdefavg'  : timedelta(weeks=10)}
 
-fast = datetime.timedelta(seconds=600)
-slow = datetime.timedelta(seconds=300)
+fast = timedelta(seconds=600)
+slow = timedelta(seconds=300)
 
 # MPI variables
 
@@ -61,20 +62,22 @@ mpivars = {
 logdir = '../Log'
 outdir = '../Out/PythonTest/'
 
-test['NRREC'] = -1
-test['ININAME'] = '../Out/HindcastYKChinook/core_01_his_00011.nc'
+ocean['NRREC'] = -1
+ocean['ININAME'] = '../Out/HindcastYKChinook/core_01_his_00011.nc'
 
-r.filltimevars(test, timevars['tstep'], timevars['datestart'], timevars['dateend'], 
-                 timevars['tref'], timevars['dthis'], timevars['dtavg'], 
-                 timevars['dtsta'], timevars['dtdefhis'], timevars['dtdefavg'])
+ocean = r.filltimevars(ocean, **timevars)
 
- print('Single run test')
-# r.runroms(ocean, 'ocean_NBSnpz.template.in', outdir, logdir, 'pythontest', 'pythontest', mpivars, dryrun=True)
+print('Single run test')
+r.runroms(ocean, 'pythontest', 'pythontest', mpivars, 
+          outdir=outdir, logdir=logdir, bio=npz, dryrun=True)
 
-# Test running through blowup
+# Test2: Same as above run, bun run through the blowup by slow-stepping for a 
+# month when we hit it.
 
 logdir = '../Log'
 outdir = '../Out/PythonTestBlowup/'
 
 print('Blowup run test')
-#r.runromsthroughblowup(test, 'ocean_NBSnpz.template.in', logdir, outdir, 'pythontest_bu', fast, slow, timevars, mpivars)
+r.runromsthroughblowup(ocean, 'pythontest_bu', timevars, mpivars, 
+                       logdir=logdir, outdir=outdir, faststep=fast, 
+                       slowstep=slow, bio=npz)

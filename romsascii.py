@@ -11,7 +11,7 @@ At the moment, this is tailored to the Bering 10K domain simulations.
 
 """
 
-import datetime
+from datetime import datetime, timedelta
 import os.path
 import subprocess
 from string import Template
@@ -19,8 +19,6 @@ import copy
 #from decimal import Decimal
 import numpy as np
 import re
-
-
 
 
 # Create file based on template but filling in values from d
@@ -63,7 +61,7 @@ def float2str(x):
     if not isinstance(x, float):
         return
     y = '{}'.format(x).replace('e','d')
-    if not 'd' in y:
+    if not any(x in y for x in ['d','.']):
         y = '{}d0'.format(y)
     return y
 
@@ -119,7 +117,10 @@ def checkforstring(x, prefix=''):
         if isinstance(x[ky], dict):
             checkforstring(x[ky], ky)
         else:
-            if not isinstance(x[ky], (str)):
+            
+            if not (isinstance(x[ky], (str)) or
+                    (isinstance(x[ky],list) and 
+                    (all(isinstance(i,str) for i in x[ky])))):
                 print('{}{}'.format(prefix, ky))
     
 
@@ -129,17 +130,18 @@ def formatforascii(d):
     
     This function converts values to the Fortran-ish syntax used in ROMS ascii
     input files.  Floats are converted to the double-precision format of
-    Fortran read/write statements, booleans are converted to T/F, and lists are
-    converted to space-delimited strings of the above (compressed using * for
-    repeated values where applicable)
+    Fortran read/write statements, booleans are converted to T/F, integers are 
+    converted straight to strings, and lists are converted to space-delimited 
+    strings of the above (compressed using * for repeated values where 
+    applicable) 
     
     Args:
         d:  ROMS parameter dictionary
     
     Returns:
         dictionary with the same keys as the input dictionary, but with values
-        replaced by the new strings (or integers) that will be used in printing
-        to file.
+        replaced by the new strings (or lists or dicts of strings) that will be 
+        used in printing to file.
     
     """
     newdict = copy.copy(d)
@@ -153,13 +155,54 @@ def formatforascii(d):
         elif isinstance(newdict[x], list):                  
             tmp = newdict[x]
             if isinstance(tmp[0], list):
-                newdict[x] = map(float2str, tmp)
+                newdict[x] = [list2str(i) for i in tmp] #  map(list2str, tmp)
             else:
                 newdict[x] = list2str(tmp)                
         elif isinstance(newdict[x], dict):
             newdict[x] = formatforascii(newdict[x])
     
     return newdict
+    
+def writeromsascii(d, fname):
+    """
+    Create ROMS ascii file based on values in a dictionary
+    
+    Assuming the keys in d correspond to ROMS keyword input arguments, this 
+    function builds a ROMS ascii input file using those keywords and their 
+    corresponding values.    
+
+    Args:
+        d:      ROMS parameter dictionary
+        fname:  name of file to create
+    
+    """
+    dstr = formatforascii(d)
+    with open(fname, 'w') as f:
+        for ky in dstr:
+            if isinstance(dstr[ky], list):
+                for i in dstr[ky]:
+                    f.write(formatline(ky, i))
+            elif isinstance(dstr[ky], dict):
+                for i in dstr[ky]:
+                    newkey = '{}({})'.format(ky,i)
+                    f.write(formatline(newkey, dstr[ky][i]))
+                # TODO
+            else:
+                f.write(formatline(ky, dstr[ky]))
+                
+                
+def formatline(kw, val):
+    singular = ['TITLE', 'MyAppCPP', 'VARNAME', 'Nbed', 'NAT', 'NPT', 'NCS', 
+                'NNS', 'ERstr', 'ERend', 'Nouter', 'Ninner', 'Nintervals', 
+                'NEV', 'NCV', 'NRREC', 'LrstGST', 'MaxIterGST', 'NGST', 
+                'Ritz_tol', 'RHO0', 'BVF_BAK', 'DSTART', 'TIDE_START', 
+                'TIME_REF', 'NUSER', 'USER', 'APARNAM', 'SPOSNAM', 'IPARNAM', 
+                'BPARNAM', 'SPARNAM', 'USRNAME']   
+    if kw in singular:
+        return '{:>14s} = {}\n'.format(kw,val)
+    else:
+        return '{:>14s} == {}\n'.format(kw,val)
+     
 
 # Set all the time-related variables
 
@@ -196,6 +239,11 @@ def filltimevars(d, tstep, datestart, dateend, tref, dthis, dtavg, dtsta, dtdefh
     d['NSTA'] = int(dtsta.total_seconds()/tstep.total_seconds())
     d['NDEFHIS'] = int(dtdefhis.total_seconds()/tstep.total_seconds())
     d['NDEFAVG'] = int(dtdefhis.total_seconds()/tstep.total_seconds())
+    
+    dfrac = (tref - datetime(tref.year, tref.month, tref.day)).total_seconds()/86400.0
+    
+    d['TIME_REF'] = float('{year}{month:02d}{day:02d}{dfrac:.1f}'.format(
+        year=tref.year, month=tref.month, day=tref.day, dfrac=dfrac))
     
     return d
 
@@ -246,7 +294,8 @@ def parseromslog(fname):
     
     return {'cleanrun': cleanrun, 'blowup': blowup, 'laststep': step, 'lasthis':lasthis}
 
-def runroms(d, templatefile, outdir, logdir, outbase, logbase, mpivars, dryrun=False):
+def runroms(d, outbase, logbase, mpivars, outdir='.', logdir='.', indir = '.', 
+            dryrun=False, bio={}, oceanfile='ocean.tmp.in', bparfile='bio.tmp.in'):
     """
     Run a ROMS simulation
     
@@ -255,10 +304,6 @@ def runroms(d, templatefile, outdir, logdir, outbase, logbase, mpivars, dryrun=F
     
     Args:
         d:              ROMS parameter dictionary
-        templatefile:   ocean.in template file
-        outdir:         path to folder where output files will be placed
-        logdir:         path to folder where log files (standard output
-                        and standard error from ROMS) will be placed
         outbase:        string, base for all output file names
         logbase:        string, base for all log file names
         mpivars:        dictionary with running options
@@ -267,6 +312,29 @@ def runroms(d, templatefile, outdir, logdir, outbase, logbase, mpivars, dryrun=F
                         hostfile:   host file name specifying cores to
                                     use
                         romsexe:    path to roms executable
+        
+    Optional keyword arguments:
+        outdir:         path to folder where output files will be placed 
+                        default = current directory
+        logdir:         path to folder where log files (standard output
+                        and standard error from ROMS) will be placed
+                        default = current directory
+        indir:          path to folder where any dynamically-generate input 
+                        files are saved
+                        default = current directory
+        dryrun:         boolean, if true, the system command is simply printed 
+                        to screen rather than being run
+                        default = False
+        bio:            dictionary of biological parameters.  If not empty, the 
+                        BPARNAM file will be dynamically generated based on the
+                        values in this dictionary.
+                        default = {}
+        oceanfile:      filename for ROMS standard input file
+                        default = 'ocean.tmp.in'
+        bparfile:       filename for biological parameter file (if bio passed 
+                        as input)
+                        default = 'bio.tmp.in'
+                        
     
     Returns:
         dictionary object with the following keys:
@@ -286,13 +354,27 @@ def runroms(d, templatefile, outdir, logdir, outbase, logbase, mpivars, dryrun=F
     d['STANAME'] = os.path.join(*(outdir, '{}_sta.nc'.format(outbase)))
     d['FLTNAME'] = os.path.join(*(outdir, '{}_flt.nc'.format(outbase)))
     
-    filltemplate(d, templatefile, 'ocean.tmp.in')
+    # Create ascii input files
+
+    if bio:
+        bparfullfile =  os.path.join(*(indir, bparfile))
+        writeromsascii(bio, bparfullfile)
+        d['BPARNAM'] = bparfullfile
+    
+    oceanfullfile = os.path.join(*(indir, oceanfile))
+    writeromsascii(d, oceanfullfile) 
+        
+#    filltemplate(d, templatefile, 'ocean.tmp.in')
+    
+    # Set up log file names
     
     if not os.path.exists(logdir):
         os.makedirs(logdir)
     
     logfile = os.path.join(*(logdir, 'out_{}.txt'.format(logbase)))
     errfile = os.path.join(*(logdir, 'err_{}.txt'.format(logbase)))
+    
+    # Run ROMS    
     
     cmd = [mpivars['mpiexe'],
                '-np', str(mpivars['np']),
@@ -308,7 +390,8 @@ def runroms(d, templatefile, outdir, logdir, outbase, logbase, mpivars, dryrun=F
     return {'log': logfile, 'err': errfile}
     
 
-def runromsthroughblowup(d, templatefile, logdir, outdir, outbase, faststep, slowstep, timevars, mpivars):
+def runromsthroughblowup(d, outbase, timevars, mpivars, logdir='.', outdir='.', 
+                         indir='.', faststep=[], slowstep=[], count=1, bio={}):
     """
     Run a ROMS simulation, attempting to get past blowups
     
@@ -318,17 +401,9 @@ def runromsthroughblowup(d, templatefile, logdir, outdir, outbase, faststep, slo
     
     Args:
         d:              ROMS parameter dictionary
-        templatefile:   ocean.in template file
-        logdir:         path to folder where log files (standard output
-                        and standard error from ROMS) will be placed
-        outdir:         path to folder where output files will be placed
         outbase:        string, base used for both output and log files
                         (will be modified with counters indicating
                         restarts)
-        faststep:       timedelta object, simulation time step for
-                        initial run
-        slowstep:       timedelta object, smaller time step used to get
-                        past blowups
         timevars:       dictionary with desired time-related variables
                         datestart:  datetime object, date of simulation
                                     start (date of step = 0, actual start
@@ -353,6 +428,30 @@ def runromsthroughblowup(d, templatefile, logdir, outdir, outbase, faststep, slo
                         hostfile:   host file name specifying cores to
                                     use
                         romsexe:    path to roms executable
+                        
+    Optional keyword arguments:
+        logdir:         path to folder where log files (standard output
+                        and standard error from ROMS) will be placed
+                        default = current directory
+        outdir:         path to folder where output files will be placed
+                        default = current directory
+        indir:          path to folder where any dynamically-generate input 
+                        files are saved
+        faststep:       timedelta object, simulation time step for
+                        initial run.  If empty, the value from d['DT'] will be 
+                        used.
+                        default = []
+        slowstep:       timedelta object, smaller time step used to get
+                        past blowups.  If empty, will be half the faststep 
+                        value.
+                        default = []
+        count:          index assigned to initial run.
+                        default = 1
+        bio:            dictionary of biological parameters.  If not empty, the 
+                        BPARNAM file will be dynamically generated based on the
+                        values in this dictionary.
+                        default = {}
+        
     
     """
     
@@ -360,21 +459,36 @@ def runromsthroughblowup(d, templatefile, logdir, outdir, outbase, faststep, slo
     # Run initial attempt
     #---------------------
     
-    count = 1
-    
     # Start with input time bounds and the fast time step
     
-    filltimevars(d, faststep, timevars['datestart'], timevars['dateend'],
-                 timevars['tref'], timevars['dthis'], timevars['dtavg'],
-                 timevars['dtsta'], timevars['dtdefhis'], timevars['dtdefavg'])
+    filltimevars(d, **timevars)
+    if faststep:
+        d['DT'] = int(faststep.total_seconds())
+    else:
+        faststep = timedelta(seconds=d['DT'])
     
+    if not slowstep:
+        slowstep = faststep/2
+    
+    # Create ascii input files that will be reused across blowups
+    # (No need to keep making these every time)
+
+    if bio:
+        bparfullfile =  os.path.join(*(indir, 'bio.tmp.in'))
+        writeromsascii(bio, bparfullfile)
+        d['BPARNAM'] = bparfullfile
+        
     # Run ROMS
     
     outbasetmp = '{}_{:02d}'.format(outbase, count)
     logbasetmp = '{}_{:02d}_fast'.format(outbase, count)
+    oceantmp = 'ocean.tmp{:02d}.in'.format(count)
     
     print('Running {} (Init)'.format(outbasetmp))
-    s = runroms(d, templatefile, outdir, logdir, outbasetmp, logbasetmp, mpivars)
+    s = runroms(d, outbasetmp, logbasetmp, mpivars, 
+                outdir=outdir, logdir=logdir, indir=indir, 
+                oceanfile=oceantmp)
+#    s = runroms(d, outdir, logdir, outbasetmp, logbasetmp, mpivars)
     
     # Parse the log file to make sure ROMS ran cleanly, and to check for a
     # blowup
@@ -416,9 +530,14 @@ def runromsthroughblowup(d, templatefile, logdir, outdir, outbase, faststep, slo
         
         outbasetmp = '{}_{:02d}'.format(outbase, count)
         logbasetmp = '{}_{:02d}_slow'.format(outbase, count)
+        oceantmp = 'ocean.tmp{:02d}.in'.format(count)        
         
         print('Running {} (slow)'.format(outbasetmp))
-        s = runroms(d, templatefile, outdir, logdir, outbasetmp, logbasetmp, mpivars)
+        s = runroms(d, outbasetmp, logbasetmp, mpivars, 
+                outdir=outdir, logdir=logdir, indir=indir, 
+                oceanfile=oceantmp)        
+        
+#        s = runroms(d, templatefile, outdir, logdir, outbasetmp, logbasetmp, mpivars)
         
         # Parse this run's log to make sure it finished cleanly
         
@@ -440,9 +559,14 @@ def runromsthroughblowup(d, templatefile, logdir, outdir, outbase, faststep, slo
         
         outbasetmp = '{}_{:02d}'.format(outbase, count)
         logbasetmp = '{}_{:02d}_fast'.format(outbase, count)
+        oceantmp = 'ocean.tmp{:02d}.in'.format(count)  
         
         print('Running {} (fast)'.format(outbasetmp))
-        s = runroms(d, templatefile, outdir, logdir, outbasetmp, logbasetmp, mpivars)
+        s = runroms(d, outbasetmp, logbasetmp, mpivars, 
+                outdir=outdir, logdir=logdir, indir=indir, 
+                oceanfile=oceantmp)          
+        
+#        s = runroms(d, templatefile, outdir, logdir, outbasetmp, logbasetmp, mpivars)
         
         # Parse this run's log to check for another blowup
         
