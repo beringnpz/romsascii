@@ -71,7 +71,7 @@ print('Single run test')
 r.runroms(ocean, 'pythontest', 'pythontest', mpivars, 
           outdir=outdir, logdir=logdir, bio=npz, dryrun=True)
 
-# Test2: Same as above run, bun run through the blowup by slow-stepping for a 
+# Test2: Same as above run, but run through the blowup by slow-stepping for a 
 # month when we hit it.
 
 logdir = '../Log'
