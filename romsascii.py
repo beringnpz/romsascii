@@ -61,7 +61,8 @@ def float2str(x):
     if not isinstance(x, float):
         return
     y = '{}'.format(x).replace('e','d')
-    if not any(x in y for x in ['d','.']):
+    if not 'd' in y:
+    # if not any(x in y for x in ['d','.']):
         y = '{}d0'.format(y)
     return y
 
@@ -177,6 +178,7 @@ def writeromsascii(d, fname):
     
     """
     dstr = formatforascii(d)
+    
     with open(fname, 'w') as f:
         for ky in dstr:
             if isinstance(dstr[ky], list):
@@ -241,9 +243,9 @@ def filltimevars(d, tstep, datestart, dateend, tref, dthis, dtavg, dtsta, dtdefh
     d['NDEFAVG'] = int(dtdefhis.total_seconds()/tstep.total_seconds())
     
     dfrac = (tref - datetime(tref.year, tref.month, tref.day)).total_seconds()/86400.0
+    datefloat = float('{year}{month:02d}{day:02d}'.format(year=tref.year, month=tref.month, day=tref.day))
     
-    d['TIME_REF'] = float('{year}{month:02d}{day:02d}{dfrac:.1f}'.format(
-        year=tref.year, month=tref.month, day=tref.day, dfrac=dfrac))
+    d['TIME_REF'] = datefloat + dfrac
     
     return d
 
@@ -380,7 +382,7 @@ def runroms(d, outbase, logbase, mpivars, outdir='.', logdir='.', indir = '.',
                '-np', str(mpivars['np']),
                '--hostfile', mpivars['hostfile'],
                mpivars['romsexe'],
-               'ocean.tmp.in']
+               oceanfullfile]
     if dryrun:
         print('{} >{} 2>{}'.format(' '.join(cmd), logfile, errfile))
     else:
@@ -519,8 +521,8 @@ def runromsthroughblowup(d, outbase, timevars, mpivars, logdir='.', outdir='.',
         # Calculate new end date, 30 days from blow up point, and change time
         # variables to use this and the slow timestep
         
-        dateblewup = timevars['datestart'] + datetime.timedelta(seconds=r['laststep']*faststep.total_seconds())
-        newend = dateblewup + datetime.timedelta(days=30)
+        dateblewup = timevars['datestart'] + timedelta(seconds=r['laststep']*faststep.total_seconds())
+        newend = dateblewup + timedelta(days=30)
         
         filltimevars(d, slowstep, timevars['datestart'], newend,
                      timevars['tref'], timevars['dthis'], timevars['dtavg'],
