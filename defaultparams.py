@@ -9,6 +9,8 @@ Created on Wed May  4 13:59:46 2016
 @author: kakearney
 """
 
+from collections import OrderedDict
+
 # The default Bering 10K ocean.in (ROMS circa 2009) dictionary
 # Most parameters are set to the values we use for Bering  10K runs.  However,
 # all file names are set to defaults and need to be changed.
@@ -16,9 +18,14 @@ def ocean():
     """
     Populate dictionary with default ocean.in ROMS parameters
     
-    Stores parameters related to the physical ROMS simulation that are stored
+    Stores parameters related to the physical ROMS simulation that are written
     in the default standard input file (usually named ocean.in, or a variant
     thereof)
+    
+    Note that although the ROMS documentation states that parameters may be
+    passed in any order, that's not entirely true.  Certain restrictions (such
+    as NtileI coming before NtileJ) exist. So this function returns an ordered
+    dictionary to preserve the order of keys for writing later.
     
     Returns:
         d: ROMS parameter dictionary.  Keys correspond to ROMS variables.
@@ -26,168 +33,168 @@ def ocean():
     nat = 2
     npt = 167
     
-    d = {
+    d = OrderedDict((
         # Application title
-        'TITLE': 'Bering Sea 10 km Grid',
+        ('TITLE', 'Bering Sea 10 km Grid'),
         # C-preprocessing Flag
-        'MyAppCPP': 'NEP5',
+        ('MyAppCPP', 'NEP5'),
         # Input variable information file name.
-        'VARNAME': 'varinfo.dat',
+        ('VARNAME', 'varinfo.dat'),
         # Grid dimension parameters.
-        'Lm': 180,
-        'Mm': 256,
-        'N':   10,
-        'Nbed': 0,
-        'NAT': nat,
-        'NPT': npt,
-        'NCS': 0,
-        'NNS': 0,
+        ('Lm', 180),
+        ('Mm', 256),
+        ('N',   10),
+        ('Nbed', 0),
+        ('NAT', nat),
+        ('NPT', npt),
+        ('NCS', 0),
+        ('NNS', 0),
         # Domain decomposition parameters
-        'NtileI': 7,
-        'NtileJ': 20,
+        ('NtileI', 7),
+        ('NtileJ', 20),
         # Time-Stepping parameters
-        'NTIMES': 0,
-        'DT': 600,
-        'NDTFAST': 40,
+        ('NTIMES', 0),
+        ('DT', 600),
+        ('NDTFAST', 40),
         # Model iteration loops parameters.
-        'ERstr': 1,
-        'ERend': 1,
-        'Nouter': 1,
-        'Ninner': 1,
-        'Nintervals': 1,
+        ('ERstr', 1),
+        ('ERend', 1),
+        ('Nouter', 1),
+        ('Ninner', 1),
+        ('Nintervals', 1),
         # Number of eigenvalues and eigenvectors for GST
-        'NEV': 2,
-        'NCV': 10,
+        ('NEV', 2),
+        ('NCV', 10),
         # Input/Output parameters.
-        'NRREC': 0,
-        'LcycleRST': True,
-        'NRST': 1008,
-        'NSTA': 6,
-        'NFLT': 144,
-        'NINFO': 1,
+        ('NRREC', 0),
+        ('LcycleRST', True),
+        ('NRST', 1008),
+        ('NSTA', 6),
+        ('NFLT', 144),
+        ('NINFO', 1),
         # Output history, average, diagnostic files parameters.
-        'LDEFOUT': True,
-        'NHIS': 1008,
-        'NDEFHIS': 10080,
-        'NTSAVG': 1,
-        'NAVG': 1008,
-        'NDEFAVG': 10080,
-        'NTSDIA': 1,
-        'NDIA': 10,
-        'NDEFDIA': 0,
+        ('LDEFOUT', True),
+        ('NHIS', 1008),
+        ('NDEFHIS', 10080),
+        ('NTSAVG', 1),
+        ('NAVG', 1008),
+        ('NDEFAVG', 10080),
+        ('NTSDIA', 1),
+        ('NDIA', 10),
+        ('NDEFDIA', 0),
         # Output tangent linear and adjoint models parameters.
-        'LcycleTLM' : False,
-             'NTLM' : 72,
-          'NDEFTLM' : 0,
-        'LcycleADJ' : False,
-             'NADJ' : 72,
-          'NDEFADJ' : 0,
+        ('LcycleTLM' , False),
+             ('NTLM' , 72),
+          ('NDEFTLM' , 0),
+        ('LcycleADJ' , False),
+             ('NADJ' , 72),
+          ('NDEFADJ' , 0),
         # Output check pointing GST restart parameters.
-           'LrstGST' :  False,
-        'MaxIterGST' :  500,
-              'NGST' :  10,
+           ('LrstGST' ,  False),
+        ('MaxIterGST' ,  500),
+              ('NGST' ,  10),
         # Relative accuracy of the Ritz values computed in the GST analysis.
-        'Ritz_tol' :  1.0e-15,
+        ('Ritz_tol' ,  1.0e-15),
         # Harmonic/biharmonic horizontal diffusion of tracers
-        'TNU2' : (nat+npt)*[25.0],
-        'TNU4' : (nat+npt)*[0.0],
+        ('TNU2' , (nat+npt)*[25.0]),
+        ('TNU4' , (nat+npt)*[0.0]),
         # Harmononic/biharmonic, horizontal viscosity coefficient
-        'VISC2' : 25.0,
-        'VISC4' : 0.0,
+        ('VISC2' , 25.0),
+        ('VISC4' , 0.0),
         # Vertical mixing coefficients for active tracers
-        'AKT_BAK' : (nat+npt)*[1.0e-6],
+        ('AKT_BAK' , (nat+npt)*[1.0e-6]),
         # Vertical mixing coefficient for momentum
-        'AKV_BAK' : 1.0e-5,
+        ('AKV_BAK' , 1.0e-5),
         # Turbulent closure parameters
-        'AKK_BAK' : 5.0e-6,
-        'AKP_BAK' : 5.0e-6,
-         'TKENU2' : 0.0,
-         'TKENU4' : 0.0,
+        ('AKK_BAK' , 5.0e-6),
+        ('AKP_BAK' , 5.0e-6),
+         ('TKENU2' , 0.0),
+         ('TKENU4' , 0.0),
         # Generic length-scale turbulence closure parameters
-            'GLS_P' : -1.0,
-            'GLS_M' : 0.5,
-            'GLS_N' : -1.0,
-         'GLS_Kmin' : 7.6e-6,
-         'GLS_Pmin' : 1.0e-12,
-         'GLS_CMU0' : 0.5477,
-           'GLS_C1' : 0.555,
-           'GLS_C2' : 0.833,
-          'GLS_C3M' : -0.6,
-          'GLS_C3P' : 1.0,
-         'GLS_SIGK' : 2.0,
-         'GLS_SIGP' : 2.0,
+            ('GLS_P' , -1.0),
+            ('GLS_M' , 0.5),
+            ('GLS_N' , -1.0),
+         ('GLS_Kmin' , 7.6e-6),
+         ('GLS_Pmin' , 1.0e-12),
+         ('GLS_CMU0' , 0.5477),
+           ('GLS_C1' , 0.555),
+           ('GLS_C2' , 0.833),
+          ('GLS_C3M' , -0.6),
+          ('GLS_C3P' , 1.0),
+         ('GLS_SIGK' , 2.0),
+         ('GLS_SIGP' , 2.0),
         # Constants used in momentum stress computation
-          'RDRG' : 3.0e-04,
-         'RDRG2' : 3.0e-03,
-           'Zob' : 0.02,
-           'Zos' : 0.02,
+          ('RDRG' , 3.0e-04),
+         ('RDRG2' , 3.0e-03),
+           ('Zob' , 0.02),
+           ('Zos' , 0.02),
         # Height (m) of atmospheric measurements for Bulk fluxes parameterization
-        'BLK_ZQ' : 10.0,
-        'BLK_ZT' : 10.0,
-        'BLK_ZW' : 10.0,
+        ('BLK_ZQ' , 10.0),
+        ('BLK_ZT' , 10.0),
+        ('BLK_ZW' , 10.0),
         # Minimum depth for wetting and drying
-        'DCRIT' :0.50,
+        ('DCRIT' , 0.50),
         # Various parameters
-          'WTYPE' : 5,
-        'LEVSFRC' : 15,
-        'LEVBFRC' : 1,
+          ('WTYPE' , 5),
+        ('LEVSFRC' , 15),
+        ('LEVBFRC' , 1),
         # Vertical S-coordinates parameters
-        'THETA_S' : 5.0,
-        'THETA_B' : 0.4,
-         'TCLINE' : 10.0,
+        ('THETA_S' , 5.0),
+        ('THETA_B' , 0.4),
+         ('TCLINE' , 10.0),
         # Mean Density and Brunt-Vaisala frequency
-            'RHO0' :  1025.0,
-         'BVF_BAK' :  1.0e-4,
+            ('RHO0' ,  1025.0),
+         ('BVF_BAK' ,  1.0e-4),
         # Time-stamps
-        'DSTART': '',
-        'TIDE_START': -693962.0,
-        'TIME_REF': 19000101.0,
+        ('DSTART', ''),
+        ('TIDE_START', -693962.0),
+        ('TIME_REF', 19000101.0),
         # Nudging/relaxation time scales
-         'TNUDG' : 360.0,
-         'ZNUDG' : 360.0,
-        'M2NUDG' : 360.0,
-        'M3NUDG' : 360.0,
+         ('TNUDG' , 360.0),
+         ('ZNUDG' , 360.0),
+        ('M2NUDG' , 360.0),
+        ('M3NUDG' , 360.0),
         # Factor between passive and active open boundary condition
-        'OBCFAC' : 120.0,
+        ('OBCFAC' , 120.0),
         # Linear equation of State parameters
-             'R0' : 1027.0,
-             'T0' : 10.0,
-             'S0' : 35.0,
-          'TCOEF' : 1.7e-4,
-          'SCOEF' : 7.6e-4,
+             ('R0' , 1027.0),
+             ('T0' , 10.0),
+             ('S0' , 35.0),
+          ('TCOEF' , 1.7e-4),
+          ('SCOEF' , 7.6e-4),
         # Slipperiness parameter
-        'GAMMA2' : 1.0,
+        ('GAMMA2' , 1.0),
         # Starting  and ending day for adjoint sensitivity forcing
-        'DstrS' : 0.0,
-        'DendS' : 0.0,
+        ('DstrS' , 0.0),
+        ('DendS' , 0.0),
         # Starting and ending vertical levels of the 3D adjoint state variables
-        'KstrS' : 1,
-        'KendS' : 1,
+        ('KstrS' , 1),
+        ('KendS' , 1),
         # Specify the adjoint variables whose sensitivity is required
-        'Lstate' : {
+        ('Lstate' , {
             'isFsur' : False,
             'isUbar' : False,
             'isVbar' : False,
             'isUvel' : False,
             'isVvel' : False,
             'isTvar' : [False, False]
-        },
+        }),
         # Stochastic optimals time decorrelation scale
-        'SO_decay' : 2.0,
+        ('SO_decay' , 2.0),
         # Specify the surface forcing variables whose stochastic optimals are required.
-        'SOstate' : {
+        ('SOstate' , {
             'isUstr' : True,
             'isVstr' : True,
             'isTsur' : [False, False]
-        },
+        }),
         # Stochastic optimals surface forcing standard deviation for dimensionalization.
-        'SO_sdev': {
+        ('SO_sdev', {
             'isUstr' : 1.0,
             'isVstr' : 1.0,
             'isTsur' : [1.0, 1.0]
-        },
+        }),
         # Activate writing of fields into HISTORY output file.
-        'Hout': {
+        ('Hout', {
             'idUvel'   : True,
             'idVvel'   : True,
             'idWvel'   : True,
@@ -245,39 +252,39 @@ def ocean():
             'idT0mk'   : True,
             'inert'    : npt*[True],
             'idBott'   : [True, True, True, True, True, True, True, True, True, False, False, False, False, False, False, False]
-        },
+        }),
         # Generic User parameters
-        'NUSER' : 0,
-         'USER' : 0.0,
+        ('NUSER' , 0),
+         ('USER' , 0.0),
         # Input NetCDF file names
-        'GRDNAME': 'grd.nc',
-        'ININAME': 'ini.nc',
-        'IRPNAME': 'irp.nc',
-        'IADNAME': 'iad.nc',
-        'BRYNAME': 'bry.nc',
-        'ADSNAME': 'ads.nc',
+        ('GRDNAME', 'grd.nc'),
+        ('ININAME', 'ini.nc'),
+        ('IRPNAME', 'irp.nc'),
+        ('IADNAME', 'iad.nc'),
+        ('BRYNAME', 'bry.nc'),
+        ('ADSNAME', 'ads.nc'),
         # Input forcing NetCDF file name(s).
-        'NFFILES': 1,
-        'FRCNAME': 'frc.nc',
+        ('NFFILES', 1),
+        ('FRCNAME', 'frc.nc'),
         # Output NetCDF file names
-        'RSTNAME': 'rst.nc',
-        'HISNAME': 'his.nc',
-        'AVGNAME': 'avg.nc',
-        'STANAME': 'sta.nc',
-        'FLTNAME': 'flt.nc',
-        'GSTNAME': 'gst.nc',
-        'TLMNAME': 'tlm.nc',
-        'TLFNAME': 'tlf.nc',
-        'ADJNAME': 'adj.nc',
+        ('RSTNAME', 'rst.nc'),
+        ('HISNAME', 'his.nc'),
+        ('AVGNAME', 'avg.nc'),
+        ('STANAME', 'sta.nc'),
+        ('FLTNAME', 'flt.nc'),
+        ('GSTNAME', 'gst.nc'),
+        ('TLMNAME', 'tlm.nc'),
+        ('TLFNAME', 'tlf.nc'),
+        ('ADJNAME', 'adj.nc'),
         # Input ASCII parameter filenames
-        'APARNAM': 'assimilation.in',
-        'SPOSNAM': 'stations.in',
-        'FPOSNAM': 'floats.in',
-        'IPARNAM': 'ice.in',
-        'BPARNAM': 'bio.in',
-        'SPARNAM': 'sediment.in',
-        'USRNAME': 'myfile.dat'
-    }
+        ('APARNAM', 'assimilation.in'),
+        ('SPOSNAM', 'stations.in'),
+        ('FPOSNAM', 'floats.in'),
+        ('IPARNAM', 'ice.in'),
+        ('BPARNAM', 'bio.in'),
+        ('SPARNAM', 'sediment.in'),
+        ('USRNAME', 'myfile.dat')
+    ))
     return d
 
 def bestnpz():
@@ -291,212 +298,214 @@ def bestnpz():
     Returns:
         d: ROMS parameter dictionary.  Keys correspond to ROMS variables.
     """
-    nbt = 15 # Number of biological tracer variables
-    d = {
+    d = OrderedDict((
     # Switch on/off biology
-    'Lbiology' : True,
+    ('Lbiology' , True),
     # Maximum iterations to achieve convergence
-    'BioIter'  : 1,
+    ('BioIter'  , 1),
     # Fraction of irradiance that is photosynthetically available (PAR)
-    'PARfrac'  : 0.5,
+    ('PARfrac'  , 0.5),
     # Biological conversions
-    'xi'       : 0.0126,    # Nitrogen:Carbon ratio (mmol N / mg C)
-    'ccr'      : 65.0,	    # Carbon:Chlorophyll ratio (mg C / mg Chl-a), small phyto
-    'ccrPhL'   : 25.0,      # Carbon:Chlorophyll ratio (mg C / mg Chl-a), large phyto
+    ('xi'       , 0.0126),    # Nitrogen,Carbon ratio (mmol N / mg C)
+    ('ccr'      , 65.0),	  # Carbon,Chlorophyll ratio (mg C / mg Chl-a), small phyto
+    ('ccrPhL'   , 25.0),      # Carbon,Chlorophyll ratio (mg C / mg Chl-a), large phyto
     # Light
-    'k_ext'    : 0.046,	    # Extinction coefficient due to seawater (1/m)
-    'k_chl'    : 0.121,	    # Extinction coefficient due to Phy. (1/m)
+    ('k_ext'    , 0.046),	  # Extinction coefficient due to seawater (1/m)
+    ('k_chl'    , 0.121),	  # Extinction coefficient due to Phy. (1/m)
     # Small Phytoplankton
-    'alphaPhS' : 5.6,	    # Slope of P-I curve (mg C/mg Chl-a/E/m2)
-    'DiS'      : 0.5,	    # Doubling rate parameter
-    'DpS'      : 0.0275,	# Doubling rate exponent
-    'k1PhS'    : 1.0,       # Half-saturation constant for NO3 limitation
-    'k2PhS'    : 0.5,	    # Half-saturation constant for NH4 limitation
+    ('alphaPhS' , 5.6),	    # Slope of P-I curve (mg C/mg Chl-a/E/m2)
+    ('DiS'      , 0.5),	    # Doubling rate parameter
+    ('DpS'      , 0.0275),	# Doubling rate exponent
+    ('k1PhS'    , 1.0),     # Half-saturation constant for NO3 limitation
+    ('k2PhS'    , 0.5),	    # Half-saturation constant for NH4 limitation
     # Large Phytoplankton
-    'alphaPhL' : 2.2,	    # Slope of P-I curve (mg C/mg Chl-a/E/m2)
-    'DiL'      : 1.0,	    # Doubling rate parameter
-    'DpL'      : 0.0275,    # Doubling rate exponent
-    'k1PhL'    : 2.0,	    # Half-saturation constant for NO3 limitation
-    'k2PhL'    : 2.0,	    # Half-saturation constant for NH4 limitation
+    ('alphaPhL' , 2.2),	    # Slope of P-I curve (mg C/mg Chl-a/E/m2)
+    ('DiL'      , 1.0),	    # Doubling rate parameter
+    ('DpL'      , 0.0275),  # Doubling rate exponent
+    ('k1PhL'    , 2.0),	    # Half-saturation constant for NO3 limitation
+    ('k2PhL'    , 2.0),	    # Half-saturation constant for NH4 limitation
     # Phytoplankotn Respiratiohn
-    'respPhS'  : 0.02,      # Specific respiration rate for PhS
-    'respPhL'  : 0.02,      # Specific respiration rate for PhL
-    'TmaxPhS'  : 10.0,
-    'KtBm_PhS' : 0.03,
-    'TmaxPhL'  : 10.0,
-    'KtBm_PhL' : 0.03,
+    ('respPhS'  , 0.02),      # Specific respiration rate for PhS
+    ('respPhL'  , 0.02),      # Specific respiration rate for PhL
+    ('TmaxPhS'  , 10.0),
+    ('KtBm_PhS' , 0.03),
+    ('TmaxPhL'  , 10.0),
+    ('KtBm_PhL' , 0.03),
     # microzoo resp
-    'respMZS'  : 0.1,       # Specific respiration rate for MZS 0.2d0
-    'respMZL'  : 0.08,      # Specific respiration rate for MZL  0.1d0
-    'TmaxMZS'  : 5.0,
-    'KtBm_MZS' : 0.069,
-    'TmaxMZL'  : 8.0,
-    'KtBm_MZL' : 0.069,
+    ('respMZS'  , 0.1),       # Specific respiration rate for MZS 0.2d0
+    ('respMZL'  , 0.08),      # Specific respiration rate for MZL  0.1d0
+    ('TmaxMZS'  , 5.0),
+    ('KtBm_MZS' , 0.069),
+    ('TmaxMZL'  , 8.0),
+    ('KtBm_MZL' , 0.069),
     # Feeding preference of Large Microzooplankton
-    'fpPhSMZL' : 1.0,	    # for Small Phytoplankton
-    'fpPhLMZL' : 0.2,	    # for Large Phytoplankton
-    'fpMZSMZL' : 0.0,       # for Small Microzooplankton
+    ('fpPhSMZL' , 1.0),	    # for Small Phytoplankton
+    ('fpPhLMZL' , 0.2),	    # for Large Phytoplankton
+    ('fpMZSMZL' , 0.0),       # for Small Microzooplankton
     # Large Microzooplankton growth
-    'eMZL'     : 0.4,	    # maximum specific ingestion rate (mg C/mg C/d)
-    'Q10MZL'   : 2.0,	    # Q10 for growth rate
-    'Q10MZLT'  : 5.0,	    # Temperature coefficient for Q10 (deg. C)
-    'fMZL'     : 20.0,	    # Half-saturation constant for grazing (mg C/m3)
-    'gammaMZL' : 0.7,	    # Growth efficiency
+    ('eMZL'     , 0.4),	    # maximum specific ingestion rate (mg C/mg C/d)
+    ('Q10MZL'   , 2.0),	    # Q10 for growth rate
+    ('Q10MZLT'  , 5.0),	    # Temperature coefficient for Q10 (deg. C)
+    ('fMZL'     , 20.0),	    # Half-saturation constant for grazing (mg C/m3)
+    ('gammaMZL' , 0.7),	    # Growth efficiency
     # Feeding preference of Copepods
-    'fpPhSCop' : 0.8,	    # for Small Phytoplankton
-    'fpPhLCop' : 0.7,	    # for Large Phytoplankton
-    'fpMZSCop' : 0.0,	    # for Small Microzooplankton
-    'fpMZLCop' : 0.5,	    # for Large Microzooplankton
+    ('fpPhSCop' , 0.8),	    # for Small Phytoplankton
+    ('fpPhLCop' , 0.7),	    # for Large Phytoplankton
+    ('fpMZSCop' , 0.0),	    # for Small Microzooplankton
+    ('fpMZLCop' , 0.5),	    # for Large Microzooplankton
     # Copepods growth
-    'eCop'     : 0.4,
-    'Q10Cop'   : 1.7,
-    'Q10CopT'  : 5.0,	    # Temperature coefficient for Q10 (deg. C)
-    'fCop'     : 30.0,
-    'gammaCop' : 0.7,	    # Growth efficiency
+    ('eCop'     , 0.4),
+    ('Q10Cop'   , 1.7),
+    ('Q10CopT'  , 5.0),	    # Temperature coefficient for Q10 (deg. C)
+    ('fCop'     , 30.0),
+    ('gammaCop' , 0.7),	    # Growth efficiency
     # Feeding preference of Neocalanus
-    'fpPhSNCa' : 0.1,	    # for Small Phytoplankton
-    'fpPhLNCa' : 1.0,	    # for Large Phytoplankton
-    'fpMZLNCa' : 1.0,	    # for Large Microzooplankton
+    ('fpPhSNCa' , 0.1),	    # for Small Phytoplankton
+    ('fpPhLNCa' , 1.0),	    # for Large Phytoplankton
+    ('fpMZLNCa' , 1.0),	    # for Large Microzooplankton
     # Neocalanus growth
-    'eNCa'     :  0.3,	    # maximum specific ingestion rate (mg C/mg C/d)
-    'Q10NCa'   :  1.6,	    # Q10 for growth rate
-    'Q10NCaT'  :  5.0,	    # Temperature coefficient for Q10 (deg. C)
-    'fNCa'     : 30.0,	    # Half-saturation constant for grazing (mg C/m3)
-    'gammaNCa' :  0.7,	    # Growth efficiency
+    ('eNCa'     ,  0.3),	    # maximum specific ingestion rate (mg C/mg C/d)
+    ('Q10NCa'   ,  1.6),	    # Q10 for growth rate
+    ('Q10NCaT'  ,  5.0),	    # Temperature coefficient for Q10 (deg. C)
+    ('fNCa'     , 30.0),	    # Half-saturation constant for grazing (mg C/m3)
+    ('gammaNCa' ,  0.7),	    # Growth efficiency
     # Feeding preference of Euphausiids
-    'fpPhLEup' : 1.0,	    # for Large Phytoplankton
-    'fpMZSEup' : 0.0,	    # for Small Microzooplankton
-    'fpMZLEup' : 1.0,	    # for Large Microzooplankton
-    'fpCopEup' : 0.2,	    # for Copepods
+    ('fpPhLEup' , 1.0),	    # for Large Phytoplankton
+    ('fpMZSEup' , 0.0),	    # for Small Microzooplankton
+    ('fpMZLEup' , 1.0),	    # for Large Microzooplankton
+    ('fpCopEup' , 0.2),	    # for Copepods
     # Euphausiids growth
-    'eEup'     : 0.3,	    # maximum specific ingestion rate (mg C/mg C/d)
-    'Q10Eup'   : 1.50,	    # Q10 for growth rate
-    'Q10EupT'  : 5.0,	    # Temperature coefficient for Q10 (deg. C)
-    'fEup'     : 40.0,	    # Half-saturation constant for grazing (mg C/m3)
-    'gammaEup' : 0.7,	    # Growth efficiency
+    ('eEup'     , 0.3),	    # maximum specific ingestion rate (mg C/mg C/d)
+    ('Q10Eup'   , 1.50),	# Q10 for growth rate
+    ('Q10EupT'  , 5.0),	    # Temperature coefficient for Q10 (deg. C)
+    ('fEup'     , 40.0),	# Half-saturation constant for grazing (mg C/m3)
+    ('gammaEup' , 0.7),	    # Growth efficiency
     # Small Phytoplankton senescence
-    'mPhS'     : 0.01,	    # daily linear mortality rate (1/d)
+    ('mPhS'     , 0.01),	    # daily linear mortality rate (1/d)
     # Large Phytoplankton senescence
-    'mPhL'     : 0.01,	    # daily linear mortality rate (1/d)
+    ('mPhL'     , 0.01),	    # daily linear mortality rate (1/d)
     # Zooplankton linear mortality
-    'mMZL'     : 0.001,	    # Daily mortality for Large Microzoo. (1/d)0.05d0
-    'mCop'     : 0.001,	    # Daily mortality for Copepods (1/d)
-    'mNCa'     : 0.001,	    # Daily mortality for Neocalanus (1/d)
-    'mEup'     : 0.001,	    # Daily mortality for Euphausiids (1/d)
+    ('mMZL'     , 0.001),	    # Daily mortality for Large Microzoo. (1/d)0.05d0
+    ('mCop'     , 0.001),	    # Daily mortality for Copepods (1/d)
+    ('mNCa'     , 0.001),	    # Daily mortality for Neocalanus (1/d)
+    ('mEup'     , 0.001),	    # Daily mortality for Euphausiids (1/d)
     # Zooplankton nonlinear mortality / predation closure
-    'mpredMZL' : 0.010,     # Daily mortality for Large Microzoo. (1/d)
+    ('mpredMZL' , 0.010),     # Daily mortality for Large Microzoo. (1/d)
+    ('mpredCop' , 0.05),	    # Daily mortality for Copepods (1/d)
+    ('mpredNCa' , 0.05),	    # Daily mortality for Neocalanus (1/d)
+    ('mpredEup' , 0.05),	    # Daily mortality for Euphausiids (1/d)
     # Sinking and regeneration terms
-    'wPhS'     : 0.05,	    # Sinking rate for Small Phytoplankton (m/d)
-    'wPhL'     : 1.0,       # Sinking rate for Large Phytoplankton (m/d)
-    'wDet'     : 1.0,       # Sinking rate for Detritus (m/d)
-    'wDetF'    : 10.0,	    # Sinking rate for Detritus (m/d)
+    ('wPhS'     , 0.05),	    # Sinking rate for Small Phytoplankton (m/d)
+    ('wPhL'     , 1.0),       # Sinking rate for Large Phytoplankton (m/d)
+    ('wDet'     , 1.0),       # Sinking rate for Detritus (m/d)
+    ('wDetF'    , 10.0),	    # Sinking rate for Detritus (m/d)
     # Terms to define the Iron climatology field ( 2 nM = no iron limitation)
-    'Feinlo'   :   2.0,     # inshore/surface (micromol Fe m-3 or nM)
-    'Feinhi'   :   4.0,     # inshore/deep    (micromol Fe m-3 or nM)
-    'Feinh'    :  20.0,     # inshore isobath of transition (m)
-    'Feofflo'  :   0.01,    # offshore/surface (micromol Fe m-3 or nM)
-    'Feoffhi'  :   2.0,     # offshore/deep    (micromol Fe m-3 or nM)
-    'Feoffh'   : 100.0,     # offshore isobath of transition (m)
+    ('Feinlo'   ,   2.0),     # inshore/surface (micromol Fe m-3 or nM)
+    ('Feinhi'   ,   4.0),     # inshore/deep    (micromol Fe m-3 or nM)
+    ('Feinh'    ,  20.0),     # inshore isobath of transition (m)
+    ('Feofflo'  ,   0.01),    # offshore/surface (micromol Fe m-3 or nM)
+    ('Feoffhi'  ,   2.0),     # offshore/deep    (micromol Fe m-3 or nM)
+    ('Feoffh'   , 100.0),     # offshore isobath of transition (m)
     # Iron limitation
-    'kfePhS'   : 0.3,       # half-saturation const. PhS (umol per m-3)
-    'kfePhL'   : 1.0,       # half-saturation const. PhL (umol per m-3)
-    'FeC'      : 1.667e-4,  # Fe(umol):Carbon(mg) is 2 umol Fe : mol C
+    ('kfePhS'   , 0.3),       # half-saturation const. PhS (umol per m-3)
+    ('kfePhL'   , 1.0),       # half-saturation const. PhL (umol per m-3)
+    ('FeC'      , 1.667e-4),  # Fe(umol),Carbon(mg) is 2 umol Fe , mol C
     # Diapause
-    'NCmaxz'   : 500.0,	    # highest depth of diapausing NC (m)
-    'wNCrise'  :  12.0,	    # upward velocity (m/day), tuned not data
-    'wNCsink'  :  11.0,	    # downward velocity (m/day), tuned not data
-    'RiseStart':   0.0,	    # Date NC begin to move upward (Day of Year)
-    'RiseEnd'  :  60.0,	    # Date NC stop moving upward (Day of Year)
-    'SinkStart': 155.0,	    # Date NC begin to move downward (Day of Year)
-    'SinkEnd'  : 366.0,	    # Date NC stop moving downward (Day of Year)
+    ('NCmaxz'   , 500.0),	    # highest depth of diapausing NC (m)
+    ('wNCrise'  ,  12.0),	    # upward velocity (m/day), tuned not data
+    ('wNCsink'  ,  11.0),	    # downward velocity (m/day), tuned not data
+    ('RiseStart',   0.0),	    # Date NC begin to move upward (Day of Year)
+    ('RiseEnd'  ,  60.0),	    # Date NC stop moving upward (Day of Year)
+    ('SinkStart', 155.0),	    # Date NC begin to move downward (Day of Year)
+    ('SinkEnd'  , 366.0),	    # Date NC stop moving downward (Day of Year)
     # Zoobenthos Parameters
-    'iremin'   : 0.800,
-    'q10'      : 1.5,
-    'q10r'     : 1.5,
-    'Rup'      : 0.05,
-    'KupD'     : 2000.,
-    'KupP'     : 10.,
-    'LupD'     : 292.,
-    'LupP'     : 1.,
-    'Qres'     : 0.25,
-    'Rres'     : 0.0027,
-    'rmort'    : 0.0021,
-    'eex'      : [0.3, 0.3],
-    'eexD'     : [0.5, 0.7],
-    'prefD'    : [1.0, 0.1],
-    'prefPL'   : [1.0, 0.1],
-    'prefPS'   : [0.1, 0.1],
-    'T0ben'    : 5.0,
-    'T0benr'   : 5.0,
-    'BenPred'  : 0.000001,
+    ('iremin'   , 0.800),
+    ('q10'      , 1.5),
+    ('q10r'     , 1.5),
+    ('Rup'      , 0.05),
+    ('KupD'     , 2000.),
+    ('KupP'     , 10.),
+    ('LupD'     , 292.),
+    ('LupP'     , 1.),
+    ('Qres'     , 0.25),
+    ('Rres'     , 0.0027),
+    ('rmort'    , 0.0021),
+    ('eex'      , [0.3, 0.3]),
+    ('eexD'     , [0.5, 0.7]),
+    ('prefD'    , [1.0, 0.1]),
+    ('prefPL'   , [1.0, 0.1]),
+    ('prefPS'   , [0.1, 0.1]),
+    ('T0ben'    , 5.0),
+    ('T0benr'   , 5.0),
+    ('BenPred'  , 0.000001),
     # Jellyfish Parameters
-    'eJel'     : 0.069,
-    'gammaJel' : 1.0,      # greater than 1 because have unmodeled food source
-    'mpredJel' : 0.006,
-    'fpCopJel' : 1.0,
-    'fpNCaJel' : 1.0,
-    'fpEupJel' : 1.0,
-    'Q10Jelr'  : 2.8,
-    'Q10Jele'  : 2.4,
-    'Q10JelTr' :10.0,
-    'Q10JelTe' :10.0,
-    'fJel'     : 0.01,
+    ('eJel'     , 0.069),
+    ('gammaJel' , 1.0),      # greater than 1 because have unmodeled food source
+    ('mpredJel' , 0.006),
+    ('fpCopJel' , 1.0),
+    ('fpNCaJel' , 1.0),
+    ('fpEupJel' , 1.0),
+    ('Q10Jelr'  , 2.8),
+    ('Q10Jele'  , 2.4),
+    ('Q10JelTr' ,10.0),
+    ('Q10JelTe' ,10.0),
+    ('fJel'     , 0.01),
     # Ice Biology Params
-    'alphaIb'  : 0.80,
-    'betaI'    : 0.018,
-    'inhib'    : 1.46,
-    'ksnut1'   : 1.0,
-    'ksnut2'   : 4.0,
-    'R0i'      : 0.05,    # respiration fraction
-    'rg0'      : 0.01,    # mortality +excretion 9.23e-4 h-1
-    'rg'       : 0.03,
-    'annit'    : 0.0149,
-    'aidz'     : 0.02,
-    'mu0'      : 2.4,
-    'respJel'  : 0.02,   # Basal metabolic rate day**-1 0- try 2 - see above
-    'ktbmJ'    : 0.05,   # Temperature response degrees C**-1
-    'TrefJ'    : 10.,    # Reference temperature degrees C
-    'respCop'  : 0.04,   # Basal metabolic rate day**-1
-    'ktbmC'    : 0.05,   # Temperature response degrees C**-1
-    'TrefC'    : 15.,    # Reference temperature degrees C
-    'respNCa'  : 0.03,   # Basal metabolic rate day**-1
-    'ktbmN'    : 0.05,   # Temperature response degrees C**-1
-    'TrefN'    : 5.,     # Reference temperature degrees C
-    'respEup'  : 0.02,   # Basal metabolic rate day**-1 !0.044d0
-    'ktbmE'    : 0.069,  # Temperature response degrees C**-1
-    'TrefE'    : 5.,     # Reference temperature degrees C
-    'tI0'      : 0.0095,
-    'KI'       : 4.,
-    'Nitr0'    : 0.0107,
-    'KnT'      : 0.0693,
-    'Pv0'      : 0.1,    # PON dicompositon at 0 deg C (d-1)
-    'PvT'      : 0.069,  # Temperature coefficient (deg C-1)
-    'KNH4Nit'  : 0.057,  # Half Sat Con mg N/m3/day 0.08d0
-    'ToptNtr'  : 20.,
-    'ktntr'    : 0.002,
+    ('alphaIb'  , 0.80),
+    ('betaI'    , 0.018),
+    ('inhib'    , 1.46),
+    ('ksnut1'   , 1.0),
+    ('ksnut2'   , 4.0),
+    ('R0i'      , 0.05),    # respiration fraction
+    ('rg0'      , 0.01),    # mortality +excretion 9.23e-4 h-1
+    ('rg'       , 0.03),
+    ('annit'    , 0.0149),
+    ('aidz'     , 0.02),
+    ('mu0'      , 2.4),
+    ('respJel'  , 0.02),   # Basal metabolic rate day**-1 0- try 2 - see above
+    ('ktbmJ'    , 0.05),   # Temperature response degrees C**-1
+    ('TrefJ'    , 10.),    # Reference temperature degrees C
+    ('respCop'  , 0.04),   # Basal metabolic rate day**-1
+    ('ktbmC'    , 0.05),   # Temperature response degrees C**-1
+    ('TrefC'    , 15.),    # Reference temperature degrees C
+    ('respNCa'  , 0.03),   # Basal metabolic rate day**-1
+    ('ktbmN'    , 0.05),   # Temperature response degrees C**-1
+    ('TrefN'    , 5.),     # Reference temperature degrees C
+    ('respEup'  , 0.02),   # Basal metabolic rate day**-1 !0.044d0
+    ('ktbmE'    , 0.069),  # Temperature response degrees C**-1
+    ('TrefE'    , 5.),     # Reference temperature degrees C
+    ('tI0'      , 0.0095),
+    ('KI'       , 4.),
+    ('Nitr0'    , 0.0107),
+    ('KnT'      , 0.0693),
+    ('Pv0'      , 0.1),    # PON dicompositon at 0 deg C (d-1)
+    ('PvT'      , 0.069),  # Temperature coefficient (deg C-1)
+    ('KNH4Nit'  , 0.057),  # Half Sat Con mg N/m3/day 0.08d0
+    ('ToptNtr'  , 20.),
+    ('ktntr'    , 0.002),
     # Horizontal diffusion of biological tracers
-    'TNU2' : nbt*[25.0] + [5.0], # m2/s
-    'TNU4' : nbt*[0.0] + [2.0],  # m2/s
+    ('TNU2' , 15*[25.0] + [5.0]), # m2/s
+    ('TNU4' , 15*[0.0] + [2.0]),  # m2/s
     # Vertical mixing coefficients for biological tracers
-    'AKT_BAK' : nbt*[1.0e-6],
+    ('AKT_BAK' , 15*[1.0e-6]),
     # Nudging/relaxation time scales
-    'TNUDG' : 2*[360.0] + 12*[36000.0] + [360.0],
+    ('TNUDG' , 2*[360.0] + 12*[36000.0] + [360.0]),
     # Activate writing of biological tracers into history file
-    'Hout': {
-        'idTvar'    : 15*[True] + [True], # State variables
-        'idTSvar'   : 16*[True],          # STATIONARY
-        'idTS2var'  : 8*[True],           # STATIONARY2
-        'idPT3var'  : 10*[True],          # PROD3
-        'idPT2var'  : 3*[True],           # PROD2
-        'idBvar'    : 3*[True],           # BENTHIC
-        'idIceBvar' : 4*[True],           # ICE_BIO
-        'idIcePhL'  : True,
-        'idIceNO3'  : True,
-        'idIceNH4'  : True,
-        'idIceLog'  : True,
-        'idTBFvar'  : True                # BIOFLUX
-        }
-    }
+    ('Hout', OrderedDict((
+        ('idTvar'    , 15*[True] + [True]), # State variables
+        ('idTSvar'   , 16*[True]),          # STATIONARY
+        ('idTS2var'  , 8*[True]),           # STATIONARY2
+        ('idPT3var'  , 10*[True]),          # PROD3
+        ('idPT2var'  , 3*[True]),           # PROD2
+        ('idBvar'    , 3*[True]),           # BENTHIC
+        ('idIceBvar' , 4*[True]),           # ICE_BIO
+        ('idIcePhL'  , True),
+        ('idIceNO3'  , True),
+        ('idIceNH4'  , True),
+        ('idIceLog'  , True),
+        ('idTBFvar'  , True)                # BIOFLUX
+        )))
+    ))
     return d
 
 def feast():
@@ -739,17 +748,17 @@ def feast():
         [16,  60,   60,   60,   60,   60,   60,   60,   60,   60,   60,   60,   60,   60,   60,   60]
       ]
     }
-    # In some of these matrices, float values are typed as integers... quick 
-    # correction of that 
- 
+    # In some of these matrices, float values are typed as integers... quick
+    # correction of that
+    
     checkfloats(d)
-                              
+    
     
     
     dnpz = bestnpz()
-
-    return merge_dicts(dnpz, d)
     
+    return merge_dicts(dnpz, d)
+
 def checkfloats(x):
     """
     Withib dict, change lists of mixed floats and integers to all floats
@@ -763,8 +772,8 @@ def checkfloats(x):
         elif isinstance(x[ky], dict):
             x[ky] = checkfloats(x[ky])
     return x
-            
     
+
 def list2floats(x):
     """
     Change list of mixed floats and integers to all floats
@@ -774,10 +783,10 @@ def list2floats(x):
                 all(isinstance(y, int) for y in x)):
             x = [float(i) for i in x]
     return x
-        
     
     
     
+
 def merge_dicts(*dict_args):
     '''
     Given any number of dicts, shallow copy and merge into a new dict,
