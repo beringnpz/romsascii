@@ -38,3 +38,6 @@ Thumbs.db
 # Python-specific #
 ######################
 __pycache__
+*.pyc
+/dist/
+/*.egg-info

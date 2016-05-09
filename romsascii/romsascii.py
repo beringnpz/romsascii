@@ -16,7 +16,6 @@ import os.path
 import subprocess
 from string import Template
 import copy
-#from decimal import Decimal
 import numpy as np
 import re
 
