@@ -72,7 +72,7 @@ def ini_frc_bry(d, indir, group):
     
     
     frc = list(map(lambda x: os.path.join(*(indir,'frc',x)), frc))
-    d['FRCNAME'] = '\n               '.join(frc)
+    d['FRCNAME'] = frc
     d['NFFILES'] = len(frc)
     d['BRYNAME'] = os.path.join(*(indir,'bry',bry))
     d['ININAME'] = os.path.join(*(indir,'ini',ini))
