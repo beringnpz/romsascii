@@ -753,8 +753,6 @@ def feast():
     
     checkfloats(d)
     
-    
-    
     dnpz = bestnpz()
     
     return merge_dicts(dnpz, d)
@@ -784,8 +782,6 @@ def list2floats(x):
             x = [float(i) for i in x]
     return x
     
-    
-    
 
 def merge_dicts(*dict_args):
     '''
@@ -796,4 +792,152 @@ def merge_dicts(*dict_args):
     for dictionary in dict_args:
         result.update(dictionary)
     return result
+    
+def ice():
+    d = OrderedDict((
+    # Logical flag to turn on ice
+    ('Lice', True),
+    # Time step for sea ice model [s]
+    ('DTICE', 600.0),
+    # Time step for updating (equilibrium) ice drift in sea ice model [s]
+    ('DTICE_EQ', 10800.0),
+    # Maximum number of iterations to achieve convergence of the nonlinear
+    # ice dynamics solution
+    ('nstrs', 1),
+    # Number of elastic time steps per viscous step in EVP dynamics
+    ('nevp', 60),
+    # Density of sea ice [kg/m3]
+    ('rhoice', 900.0),
+    # Ice-water bulk drag coefficient (nondimensional).
+    ('cdiw', 7.5e-3),
+    # Air-ice bulk drag coefficient (nondimensional).
+    ('cdai', 3.0e-3),
+    # Slipperiness parameter for ice: 1.0 (free slip) or -1.0 (no slip)
+    ('GAMMA2', -1.0),
+    # Density of air [kg/m3]
+    ('rho_air', 1.267),
+    # Density of dry snow [kg/m3]
+    ('rhosnow_dry', 330.0),
+    # Density of wet snow [kg/m3]
+    ('rhosnow_wet', 450.0),
+    # Ice strength coefficient [N/m2]
+    ('pstar', 5.0e03),
+    # Ice strength exponential weighting coefficient on concentration
+    # (nondimensional)
+    ('astren', 20.0),
+    # Maximum shear strength [N/m2]
+    ('zetamax', 1.0e14),
+    # Minimum shear strength [N/m2]
+    ('zetamin', 0.0),
+    # Ellipticity squared of yield curve
+    # (nondimensional)
+    ('ellip_sq', 4.0),
+    # Mohr-Coulomb stress angle [degrees]
+    ('alphai', 45.0),
+    # Tolerance against zero-divide
+    ('tol', 1.e-16),
+    # Minimum average ice thickness [m]
+    ('min_h', 0.00),
+    # Minimum ice concentration
+    # (nondimensional)
+    ('min_a', 0.00),
+    # Maximum ice concentration
+    # (nondimensional)
+    ('max_a', 1.0),
+    # Ice-water turning angle [degrees]
+    ('stressang', 0.0),
+    # Ice emissivity
+    # (nondimensional)
+    ('ice_emiss', 0.97),
+    # Specific heat of air
+    ('spec_heat_air', 1004.0),
+    # Transfer coefficient
+    # (nondimensional)
+    ('trans_coeff', 1.75e-3),
+    # Latent heat of sublimation
+    ('sublim_latent_heat', 2.834e6),
+    # Zero degree Celsius in Kelvin
+    ('t0deg', 273.15)
+    ))
+    return d
+    
+def stations():
+    d = OrderedDict((
+    # Logical flag to turn on writing station data
+    ('Lstations', True),
+    # Activate writing of fields
+    ('Sout', OrderedDict((
+        ('idFsur', True),             # free-surface
+        ('idUbar', True),             # 2D U-velocity
+        ('idVbar', True),             # 2D V-velocity
+        ('idUvel', True),             # 3D U-velocity
+        ('idVvel', True),             # 3D V-velocity
+        ('idWvel', True),             # 3D W-velocity
+        ('idOvel', True),             # 3D omega vertical velocity
+        ('idTvar', 17*[True]),        # all (NT) tracers
+        ('idUsms', True),             # surface U-stress
+        ('idVsms', True),             # surface V-stress
+        ('idUbms', True),             # bottom U-stress
+        ('idVbms', True),             # bottom V-stress
+        ('idUbws', False),            # bottom U-wave stress
+        ('idVbws', False),            # bottom V-wave stress
+        ('idUbed', False),            # bed wave orbital U-velocity
+        ('idVbed', False),            # bed wave orbital V-velocity
+        ('idUbot', False),            # bottom U-momentum above bed
+        ('idVbot', False),            # bottom V-momentum above bed
+        ('idTsur', [True, True]),     # surface net heat and salt flux
+        ('idLhea', True),             # latent heat flux
+        ('idShea', True),             # sensible heat flux
+        ('idLrad', True),             # longwave radiation flux
+        ('idSrad', True),             # shortwave radiation flux
+        ('idevap', False),            # evaporation rate
+        ('idrain', False),            # precipitation rate
+        ('idDano', True),             # density anomaly
+        ('idVvis', True),             # vertical viscosity
+        ('idTdif', True),             # vertical T-diffusion
+        ('idSdif', True),             # vertical Salinity diffusion
+        ('idHsbl', True),             # depth of surface boundary layer
+        ('idHbbl', True),             # depth of bottom boundary layer
+        ('idMtke', False),            # turbulent kinetic energy
+        ('idMtls', False),            # turbulent length scale
+        ('idUice'  , True),           # Ice prognostic variables
+        ('idVice'  , True),
+        ('idAice'  , True),
+        ('idHice'  , True),
+        ('idHice'  , True),
+        ('idHsnbc' , True),
+        ('idTice'  , True),
+        ('idHsno'  , True),
+        ('idTimid' , True),
+        ('idSfwat' , True),
+        ('idTauiw' , False),
+        ('idChuiw' , False),
+        ('idAgeice', True),
+        ('idSig11' , True),
+        ('idSig12' , True),
+        ('idSig22' , True),
+        ('idWfr'   , True),
+        ('idS0mk'  , True),
+        ('idT0mk'  , True),
+        ('idTSvar', 14*[True]),      # Stationary, Biology
+        ('idTS2var', 8*[True]),
+        ('idPT3var', 10*[True]),     # PROD3
+        ('idPT2var', 3*[True]),      # PROD2
+        ('idBvar', [True, True]),    # Benthic variables
+        ('idIcePhL', True),          # Ice Biology variables
+        ('idIceNO3', True),
+        ('idIceNH4', True),
+        ('idBott', 16*[False])       # exposed sediment layer properties
+        ))),
+    ('NSTATION', 3),
+    ('POS', {
+        'GRID': [1, 1, 1],
+        'FLAG': [1, 1, 1],
+        'X-POS': [195.9500, 195.0, 181.9],
+        'Y-POS': [56.8636, 63.855, 56.597]
+    })           
+    ))
+    return d
+    
+
     
