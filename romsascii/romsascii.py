@@ -191,7 +191,8 @@ def writeromsascii(d, fname, filetype='phys'):
     
     Optional keyword arguments:
         filetype:   type of file (used to determine which parameters need
-                    = vs ==).  Can be 'phys', 'bio', or 'ice'
+                    = vs ==).  Can be 'phys', 'bio', 'ice', or 'stations'.  If 
+                    not included, default is 'phys'.
     
     """
     dstr = formatforascii(d)
@@ -226,7 +227,7 @@ def formatline(kw, val, filetype='phys'):
     elif filetype == 'stations':
         singular = ['POS']
     else:
-        raise Exception("filetype input must be either 'phys', 'bio', or 'ice'")
+        raise Exception("filetype input must be either 'phys', 'bio', 'ice', or 'stations'")
         
     
     if kw in singular:
@@ -326,7 +327,8 @@ def parseromslog(fname):
     return {'cleanrun': cleanrun, 'blowup': blowup, 'laststep': step, 'lasthis':lasthis}
 
 def runroms(d, outbase, logbase, mpivars, outdir='.', logdir='.', indir = '.',
-            dryrun=False, bio={}, oceanfile='ocean.tmp.in', bparfile='bio.tmp.in'):
+            dryrun=False, bio={}, ice={}, stations={}, oceanfile='ocean.tmp.in', 
+            bparfile='bio.tmp.in', iparfile='ice.tmp.in', sposfile='stations.tmp.in'):
     """
     Run a ROMS simulation
     
@@ -360,11 +362,25 @@ def runroms(d, outbase, logbase, mpivars, outdir='.', logdir='.', indir = '.',
                         BPARNAM file will be dynamically generated based on the
                         values in this dictionary.
                         default = {}
+        ice:            dictionary of ice parameters.  If not empty, the 
+                        IPARNAM file will be dynamically generated based on the 
+                        values in this dictionary.
+                        default = {}
+        stations:       dictionary of station parameters.  If not empty, the 
+                        SPOSNAM file will be dynamically generated based on the 
+                        values in this dictionary.
+                        default = {}
         oceanfile:      filename for ROMS standard input file
                         default = 'ocean.tmp.in'
         bparfile:       filename for biological parameter file (if bio passed
                         as input)
                         default = 'bio.tmp.in'
+        iparfile:       filename for ice parameter file (if ice passed as 
+                        input)
+                        default = 'ice.tmp.in'
+        sposfile:       filename for stations parameter file (if stations 
+                        passed as input)
+                        default = 'stations.tmp.in'
     
     
     Returns:
@@ -392,10 +408,16 @@ def runroms(d, outbase, logbase, mpivars, outdir='.', logdir='.', indir = '.',
         writeromsascii(bio, bparfullfile, filetype='bio')
         d['BPARNAM'] = bparfullfile
     
+    if ice:
+        iparfullfile = os.path.join(*(indir, iparfile))
+        writeromsascii(ice, iparfullfile, filetype='ice')
+        
+    if stations:
+        sposfullfile = os.path.join(*(indir, sposfile))
+        writeromsascii(stations, sposfullfile, filetype='stations')    
+    
     oceanfullfile = os.path.join(*(indir, oceanfile))
     writeromsascii(d, oceanfullfile, filetype='phys')
-
-#    filltemplate(d, templatefile, 'ocean.tmp.in')
     
     # Set up log file names
     
@@ -422,7 +444,8 @@ def runroms(d, outbase, logbase, mpivars, outdir='.', logdir='.', indir = '.',
 
 
 def runromsthroughblowup(d, outbase, timevars, mpivars, logdir='.', outdir='.',
-                         indir='.', faststep=[], slowstep=[], count=1, bio={}):
+                         indir='.', faststep=[], slowstep=[], count=1, bio={}, 
+                         ice={}, stations={}):
     """
     Run a ROMS simulation, attempting to get past blowups
     
@@ -482,6 +505,14 @@ def runromsthroughblowup(d, outbase, timevars, mpivars, logdir='.', outdir='.',
                         BPARNAM file will be dynamically generated based on the
                         values in this dictionary.
                         default = {}
+        ice:            dictionary of ice parameters.  If not empty, the 
+                        IPARNAM file will be dynamically generated based on the 
+                        values in this dictionary.
+                        default = {}
+        stations:       dictionary of station parameters.  If not empty, the 
+                        SPOSNAM file will be dynamically generated based on the 
+                        values in this dictionary.
+        
     
     
     """
@@ -508,6 +539,17 @@ def runromsthroughblowup(d, outbase, timevars, mpivars, logdir='.', outdir='.',
         bparfullfile =  os.path.join(*(indir, 'bio.tmp.in'))
         writeromsascii(bio, bparfullfile, filetype='bio')
         d['BPARNAM'] = bparfullfile
+        
+    if ice:  
+        iparfullfile =  os.path.join(*(indir, 'ice.tmp.in'))
+        writeromsascii(ice, iparfullfile, filetype='ice')
+        d['IPARNAM'] = iparfullfile
+        
+    if stations:
+        sposfullfile =  os.path.join(*(indir, 'stations.tmp.in'))
+        writeromsascii(stations, sposfullfile, filetype='stations')
+        d['SPOSNAM'] = sposfullfile
+        
     
     # Run ROMS
     
@@ -519,7 +561,6 @@ def runromsthroughblowup(d, outbase, timevars, mpivars, logdir='.', outdir='.',
     s = runroms(d, outbasetmp, logbasetmp, mpivars,
                 outdir=outdir, logdir=logdir, indir=indir,
                 oceanfile=oceantmp)
-#    s = runroms(d, outdir, logdir, outbasetmp, logbasetmp, mpivars)
     
     # Parse the log file to make sure ROMS ran cleanly, and to check for a
     # blowup
@@ -567,8 +608,6 @@ def runromsthroughblowup(d, outbase, timevars, mpivars, logdir='.', outdir='.',
         s = runroms(d, outbasetmp, logbasetmp, mpivars,
                 outdir=outdir, logdir=logdir, indir=indir,
                 oceanfile=oceantmp)
-
-#        s = runroms(d, templatefile, outdir, logdir, outbasetmp, logbasetmp, mpivars)
         
         # Parse this run's log to make sure it finished cleanly
         
@@ -596,8 +635,6 @@ def runromsthroughblowup(d, outbase, timevars, mpivars, logdir='.', outdir='.',
         s = runroms(d, outbasetmp, logbasetmp, mpivars,
                 outdir=outdir, logdir=logdir, indir=indir,
                 oceanfile=oceantmp)
-
-#        s = runroms(d, templatefile, outdir, logdir, outbasetmp, logbasetmp, mpivars)
         
         # Parse this run's log to check for another blowup
         

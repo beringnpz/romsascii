@@ -5,19 +5,21 @@ Created on Mon May  2 10:21:05 2016
 @author: kelly.kearney
 """
 
-import romsascii as r
-import defaultparams
-import bering10kinput as b10k
+from romsascii import romsascii as r
+from romsascii import defaultparams
+from romsascii import bering10kinput as b10k
 from datetime import datetime, timedelta
 
 #--------------------
 # Setup
 #--------------------
 
-# Default parameters: physical and NPZ 
+# Default parameters: physical, NPZ, ice, stations 
     
 ocean = defaultparams.ocean()  
 npz = defaultparams.bestnpz()
+ice = defaultparams.ice()
+stations = defaultparams.stations()
 
 # Fill in Bering 10K input files, using CORE forcing
   
@@ -51,6 +53,8 @@ mpivars = {
 'np':   140,
 'hostfile': 'hostfile_0-7',
 'romsexe': 'oceanM_npz_srb'}
+
+
 
 #--------------------
 # Test sims
