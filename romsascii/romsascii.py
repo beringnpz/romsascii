@@ -403,6 +403,9 @@ def runroms(d, outbase, logbase, mpivars, outdir='.', logdir='.', indir = '.',
     
     # Create ascii input files
     
+    if not os.path.exists(indir):
+        os.makedirs(indir)    
+    
     if bio:
         bparfullfile =  os.path.join(*(indir, bparfile))
         writeromsascii(bio, bparfullfile, filetype='bio')
