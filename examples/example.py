@@ -19,7 +19,7 @@ from datetime import datetime, timedelta
 ocean = defaultparams.ocean()  
 npz = defaultparams.bestnpz()
 ice = defaultparams.ice()
-stations = defaultparams.stations()
+stat = defaultparams.stations()
 
 # Fill in Bering 10K input files, using CORE forcing
   
@@ -54,8 +54,6 @@ mpivars = {
 'hostfile': 'hostfile_0-7',
 'romsexe': 'oceanM_npz_srb'}
 
-
-
 #--------------------
 # Test sims
 #--------------------
@@ -63,8 +61,9 @@ mpivars = {
 # Test 1: A simple call to the ROMS executable.  This run should stop when it 
 # blows up.  Start from a previous history file
 
-logdir = '../Log'
-outdir = '../Out/PythonTest/'
+logdir = 'testlog/'
+outdir = 'testout/'
+indir  = 'testin/'
 
 ocean['NRREC'] = -1
 ocean['ININAME'] = '../Out/HindcastYKChinook/core_01_his_00011.nc'
@@ -73,15 +72,15 @@ ocean = r.filltimevars(ocean, **timevars)
 
 print('Single run test')
 r.runroms(ocean, 'pythontest', 'pythontest', mpivars, 
-          outdir=outdir, logdir=logdir, bio=npz, dryrun=True)
+          outdir=outdir, logdir=logdir, indir=indir, 
+          bio=npz, ice=ice, stations=stat, dryrun=False)
 
-# Test2: Same as above run, but run through the blowup by slow-stepping for a 
+# Test 2: Same as above run, but run through the blowup by slow-stepping for a 
 # month when we hit it.
 
-logdir = '../Log'
-outdir = '../Out/PythonTestBlowup/'
+indir = 'testin2/'
 
 print('Blowup run test')
 r.runromsthroughblowup(ocean, 'pythontest_bu', timevars, mpivars, 
-                       logdir=logdir, outdir=outdir, faststep=fast, 
-                       slowstep=slow, bio=npz)
+                       logdir=logdir, outdir=outdir, indir=indir, faststep=fast, 
+                       slowstep=slow, bio=npz, ice=ice, stations=stat)
