@@ -794,6 +794,15 @@ def merge_dicts(*dict_args):
     return result
     
 def ice():
+    """
+    Populate dictionary with ice model parameters
+    
+    Stores parameters related to the ice model.  These parameters are input 
+    through the file indicated by the IPARNAM variable.
+    
+    Returns:
+        d: ROMS parameter dictionary.  Keys correspond to ROMS variables.
+    """
     d = OrderedDict((
     # Logical flag to turn on ice
     ('Lice', True),
@@ -862,6 +871,16 @@ def ice():
     return d
     
 def stations():
+    """
+    Populate dictionary with station output parameters
+    
+    Stores parameters related to the stations output.  These parameters are 
+    input through the file indicated by the SPOSNAM variable.
+    
+    Returns:
+        d: ROMS parameter dictionary.  Keys correspond to ROMS variables.
+    """    
+    
     d = OrderedDict((
     # Logical flag to turn on writing station data
     ('Lstations', True),
