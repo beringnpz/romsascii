@@ -538,6 +538,9 @@ def runromsthroughblowup(d, outbase, timevars, mpivars, logdir='.', outdir='.',
     # Create ascii input files that will be reused across blowups
     # (No need to keep making these every time)
     
+    if not os.path.exists(indir):
+        os.makedirs(indir)
+    
     if bio:
         bparfullfile =  os.path.join(*(indir, 'bio.tmp.in'))
         writeromsascii(bio, bparfullfile, filetype='bio')
