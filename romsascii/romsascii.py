@@ -238,7 +238,11 @@ def formatline(kw, val, filetype='phys'):
 
 # Set all the time-related variables
 
-def filltimevars(d, tstep, datestart, dateend, tref, dthis, dtavg, dtsta, dtdefhis, dtdefavg):
+def filltimevars(d, tstep, datestart, dateend, tref, 
+                 dthis=timedelta(weeks=1), dtavg=timedelta(weeks=1), 
+                 dtsta=timedelta(weeks=1), dtrst=timedelta(weeks=1), 
+                 dtflt=timedelta(weeks=1), dtdefhis=timedelta(weeks=10), 
+                 dtdefavg=timedelta(weeks=10)):
     """
     Calculate time-related parameters for ROMS dictionary
     
@@ -254,13 +258,22 @@ def filltimevars(d, tstep, datestart, dateend, tref, dthis, dtavg, dtsta, dtdefh
                     initialization file time)
         dateend:    datetime object, date of simulation end
         tref:       datetime object, reference date
+                 
+    Optional keyword arguments:
         dthis:      timedelta object, time between history file writes
+                    default = 1 week
         dtavg:      timedelta object, time between average file writes
+                    default = 1 week
         dtsta:      timedelta object, time between station file writes
+                    default = 1 week
+        dtrst:      timedelta object, time between restart file writes
+                    default = 1 week
         dtdefhis:   timedelta object, time between new history file
                     creation
+                    default = 10 weeks
         dtdefavg:   timedelta object, time between new average file
                     creation
+                    default = 10 weeks
     """
     
     d['DT'] = int(tstep.total_seconds())
@@ -269,6 +282,7 @@ def filltimevars(d, tstep, datestart, dateend, tref, dthis, dtavg, dtsta, dtdefh
     d['NHIS'] = int(dthis.total_seconds()/tstep.total_seconds())
     d['NAVG'] = int(dtavg.total_seconds()/tstep.total_seconds())
     d['NSTA'] = int(dtsta.total_seconds()/tstep.total_seconds())
+    d['NRST'] = int(dtrst.total_seconds()/tstep.total_seconds())
     d['NDEFHIS'] = int(dtdefhis.total_seconds()/tstep.total_seconds())
     d['NDEFAVG'] = int(dtdefhis.total_seconds()/tstep.total_seconds())
     
@@ -414,10 +428,12 @@ def runroms(d, outbase, logbase, mpivars, outdir='.', logdir='.', indir = '.',
     if ice:
         iparfullfile = os.path.join(*(indir, iparfile))
         writeromsascii(ice, iparfullfile, filetype='ice')
+        d['IPARNAM'] = iparfullfile
         
     if stations:
         sposfullfile = os.path.join(*(indir, sposfile))
-        writeromsascii(stations, sposfullfile, filetype='stations')    
+        writeromsascii(stations, sposfullfile, filetype='stations') 
+        d['SPOSNAM'] = sposfullfile   
     
     oceanfullfile = os.path.join(*(indir, oceanfile))
     writeromsascii(d, oceanfullfile, filetype='phys')
