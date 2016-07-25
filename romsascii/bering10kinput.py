@@ -51,14 +51,14 @@ def ini_frc_bry(d, indir, group):
             'rain.1948-2006.Bering.nc'
             )
     
-    cfsr = ('roms-cfs-atmos-Pair-regridded-2002-2014.nc',
-            'roms-cfs-atmos-Qair-regridded-2002-2014.nc',
-            'roms-cfs-atmos-Tair-regridded-2002-2014.nc',
-            'roms-cfs-atmos-lwrad-reduced-by-3-percent-regridded-2002-2014.nc',
-            'roms-cfs-atmos-swradave-reduced-by-10-percent-regridded-2002-2014.nc',
-            'roms-cfs-atmos-Uwind-regridded-2002-2014.nc',
-            'roms-cfs-atmos-Vwind-regridded-2002-2014.nc',
-            'roms-cfs-atmos-rain-regridded-2002-2014.nc'
+    cfsr = ('cfs-Pair-2002-2014.nc',
+            'cfs-Qair-2002-2014.nc',
+            'cfs-Tair-2002-2014.nc',
+            'cfs-lwrad-reduced-3-percent-2002-2014.nc',
+            'cfs-swradave-reduced-10-percent-2002-2014.nc',
+            'cfs-Uwind-2002-2014.nc',
+            'cfs-Vwind-2002-2014.nc',
+            'cfs-rain-2002-2014.nc'
             )
     
     if group == 'core':
