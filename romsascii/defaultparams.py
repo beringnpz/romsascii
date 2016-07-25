@@ -508,7 +508,7 @@ def bestnpz():
     ))
     return d
 
-def feast():
+def feast(flag=False):
     """
     Populate dictionary with FEAST biological parameters
     
@@ -755,7 +755,10 @@ def feast():
     
     dnpz = bestnpz()
     
-    return merge_dicts(dnpz, d)
+    if flag:
+        return dict(merge_dicts(dnpz, d))
+    else:
+        return merge_dicts(dnpz, d)
 
 def checkfloats(x):
     """
