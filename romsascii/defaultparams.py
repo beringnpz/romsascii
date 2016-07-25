@@ -536,7 +536,7 @@ def feast(flag=False):
     ('mpredCop'          , 0.035),  # Daily mortality for Copepods (1/d)
     ('mpredNCa'          , 0.025),  # Daily mortality for Neocalanus (1/d)
     ('mpredEup'          , 0.025),
-    ('fpredCop '  ,  0.015),
+    ('fpredCop'  ,   0.015),
     ('fpredNcaS'  ,  0.025),
     ('fpredNcaO'  ,  0.025),
     ('fpredEupS'  ,  0.025),
