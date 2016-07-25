@@ -31,3 +31,13 @@ This module includes some very Bering 10K-specific functions.  They mostly serve
 - **ini\_frc\_bry**: locations of CORE and CFSR datasets
 - **other\_in**: locations of varinfo.dat, grid file, and default stations, biology, and ice (the latter three will often be overwritten via parameter dictionaries in user scripts, but I provide this default just in case).
                          
+												 
+## To build
+
+To rebuild in development mode:
+
+`python setup.py develop`
+
+To rebuild in final mode:
+
+`python setup.py install`
