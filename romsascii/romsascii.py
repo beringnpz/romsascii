@@ -96,7 +96,7 @@ def list2str(tmp):
             all(isinstance(x, int)   for x in tmp)):
         return tmp
     
-    consec = consecutive(tmp)
+    consec = consecutive(tmp, stepsize=123456789) # turning off consec TODO change this to better code
     
     if isinstance(tmp[0], float):
         y = map(lambda x: '{num}*{val}'.format(num=len(x),val=float2str(x[0])), consec)
@@ -305,7 +305,7 @@ def parseromslog(fname):
     
     Returns:
         dictionary object with the following keys:
-            cleanrun:   True if simulation ran ran with errors
+            cleanrun:   True if simulation ran without errors
             blowup:     True if simulation blew up
             laststep:   Index of last step recorded
             lasthis:    Name of last history file defined
@@ -469,7 +469,7 @@ def runromsthroughblowup(d, outbase, timevars, mpivars, logdir='.', outdir='.',
     Run a ROMS simulation, attempting to get past blowups
     
     This function runs the ROMS executable with the specified options and
-    inputs.  If the simulation flows up, it decreases the simulation step
+    inputs.  If the simulation blows up, it decreases the simulation step
     size and runs for a month before returning to the original step size.
     
     Args:
@@ -636,6 +636,10 @@ def runromsthroughblowup(d, outbase, timevars, mpivars, logdir='.', outdir='.',
         r = parseromslog(s['log'])
         if not r['cleanrun']:
             print('ROMS crashed')
+            return
+            
+        if r['blowup']:
+            print('ROMS blew up with slow step; stopping simulation')
             return
         
         # Switch back to fast time step and try to run until the end
