@@ -51,23 +51,41 @@ def ini_frc_bry(d, indir, group):
             'rain.1948-2006.Bering.nc'
             )
     
-    cfsr = ('cfs-Pair-2002-2014.nc',
-            'cfs-Qair-2002-2014.nc',
-            'cfs-Tair-2002-2014.nc',
-            'cfs-lwrad-reduced-3-percent-2002-2014.nc',
-            'cfs-swradave-reduced-10-percent-2002-2014.nc',
-            'cfs-Uwind-2002-2014.nc',
-            'cfs-Vwind-2002-2014.nc',
-            'cfs-rain-2002-2014.nc'
+    cfsr1 = ('cfs-Pair-2002-2014.nc',
+             'cfs-Qair-2002-2014.nc',
+             'cfs-Tair-2002-2014.nc',
+             'cfs-lwrad-reduced-3-percent-2002-2014.nc',
+             'cfs-swradave-reduced-10-percent-2002-2014.nc',
+             'cfs-Uwind-2002-2014.nc',
+             'cfs-Vwind-2002-2014.nc',
+             'cfs-rain-2002-2014.nc'
+            )
+            
+    cfsr2 = ('cfs-Pair-2015-2016.nc',
+             'cfs-Qair-2015-2016.nc',
+             'cfs-Tair-2015-2016.nc',
+             'cfs-lwrad-reduced-3-percent-2015-2016.nc',
+             'cfs-swradave-reduced-10-percent-2015-2016.nc',
+             'cfs-Uwind-2015-2016.nc',
+             'cfs-Vwind-2015-2016.nc',
+             'cfs-rain-2015-2016.nc'
             )
     
-    if group == 'core':
+    if group == 'core':    # 1969/01/07 - 2002/01/02 
         frc = core + same
         bry = 'core_bry.1969-2004.nc'
         ini = 'ini.1969.nc'
-    elif group == 'cfsr':
-        frc = cfsr + same
+    elif group == 'cfsr1': # 2002/01/02 - 2013-01-04
+        frc = cfsr1 + same
         bry = 'cfsr_bc_2002-2014_5day_bio_10layer.nc'
+        ini = 'ini.2004.nc'
+    elif group == 'cfsr2': # 2013/01/04 - 2014/12/31
+        frc = cfsr1 + same
+        bry = 'bering10k_bc_2013-2016_with_bio.nc'
+        ini = 'ini.2004.nc'
+    elif group == 'cfsr3': # 2014/12/31 - 2016/08/25
+        frc = cfsr2 + same
+        bry = 'bering10k_bc_2013-2016_with_bio.nc'
         ini = 'ini.2004.nc'
     
     
