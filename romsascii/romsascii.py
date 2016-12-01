@@ -617,8 +617,9 @@ def runromsthroughblowup(d, outbase, timevars, mpivars, logdir='.', outdir='.',
         newend = dateblewup + timedelta(days=30)
         
         filltimevars(d, slowstep, timevars['datestart'], newend,
-                     timevars['tref'], timevars['dthis'], timevars['dtavg'],
-                     timevars['dtsta'], timevars['dtdefhis'], timevars['dtdefavg'])
+                     timevars['tref'], dthis=timevars['dthis'], dtavg=timevars['dtavg'],
+                     dtsta=timevars['dtsta'], dtrst=timevars['dtrst'],
+                     dtdefhis=timevars['dtdefhis'], dtdefavg=timevars['dtdefavg'])
         
         # Run ROMS
         
@@ -650,8 +651,9 @@ def runromsthroughblowup(d, outbase, timevars, mpivars, logdir='.', outdir='.',
         d['ININAME'] = r['lasthis']
         
         filltimevars(d, faststep, timevars['datestart'], timevars['dateend'],
-                     timevars['tref'], timevars['dthis'], timevars['dtavg'],
-                     timevars['dtsta'], timevars['dtdefhis'], timevars['dtdefavg'])
+                     timevars['tref'], dthis=timevars['dthis'], dtavg=timevars['dtavg'],
+                     dtsta=timevars['dtsta'], dtdefhis=timevars['dtdefhis'], 
+                     dtdefavg=timevars['dtdefavg'], dtrst=timevars['dtrst'])
         
         outbasetmp = '{}_{:02d}'.format(outbase, count)
         logbasetmp = '{}_{:02d}_fast'.format(outbase, count)
