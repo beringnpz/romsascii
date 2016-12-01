@@ -589,8 +589,11 @@ def runromsthroughblowup(d, outbase, timevars, mpivars, logdir='.', outdir='.',
     
     r = parseromslog(s['log'])
     
+    cleanexit = True
+    
     if not r['cleanrun']:
         print('ROMS crashed')
+        cleanexit = False
         return
     
     # If it blew up...
@@ -637,11 +640,12 @@ def runromsthroughblowup(d, outbase, timevars, mpivars, logdir='.', outdir='.',
         r = parseromslog(s['log'])
         if not r['cleanrun']:
             print('ROMS crashed')
-            return
+            cleanexit = False
+            return cleanexit
             
         if r['blowup']:
             print('ROMS blew up with slow step; stopping simulation')
-            return
+            return cleanexit
         
         # Switch back to fast time step and try to run until the end
         
@@ -669,9 +673,11 @@ def runromsthroughblowup(d, outbase, timevars, mpivars, logdir='.', outdir='.',
         r = parseromslog(s['log'])
         if not r['cleanrun']:
             print('ROMS crashed')
-            return
+            cleanexit = False
+            return cleanexit
     
     print('Done')
+    return cleanexit
 
 
     
