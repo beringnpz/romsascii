@@ -64,8 +64,8 @@ def ini_frc_bry(d, indir, group):
     cfsr2 = ('cfs-Pair-2015-2016.nc',
              'cfs-Qair-2015-2016.nc',
              'cfs-Tair-2015-2016.nc',
-             'cfs-lwrad-reduced-3-percent-2015-2016.nc',
-             'cfs-swradave-reduced-10-percent-2015-2016.nc',
+             'cfs-lwrad-reduced-by-3-percent-2015-2016.nc',
+             'cfs-swradave-reduced-by-10-percent-2015-2016.nc',
              'cfs-Uwind-2015-2016.nc',
              'cfs-Vwind-2015-2016.nc',
              'cfs-rain-2015-2016.nc'
