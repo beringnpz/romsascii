@@ -299,197 +299,173 @@ def bestnpz():
         d: ROMS parameter dictionary.  Keys correspond to ROMS variables.
     """
     d = OrderedDict((
-    # Switch on/off biology
-    ('Lbiology' , True),
-    # Maximum iterations to achieve convergence
-    ('BioIter'  , 1),
-    # Fraction of irradiance that is photosynthetically available (PAR)
-    ('PARfrac'  , 0.5),
+    # General
+    ('Lbiology' , True),      # Logical flag for biology
+    ('BioIter'  , 1),         # Number of iterations for nonlinear convergence.
+    # Light
+    ('PARfrac'  , 0.5),       # Fraction of irradiance that is photosynthetically available (PAR)
+    ('k_ext'    , 0.046),	  # Extinction coefficient due to seawater (1/m)
+    ('k_chl'    , 0.121),	  # Extinction coefficient due to Phy. (1/m)
+    ('k_extZ'   , 0)          # Cokelet light parameter, TODO: need to get value from Georgina
+    ('k_chlA'   , 0)          # Cokelet light parameter, TODO: need to get value from Georgina
+    ('k_chlB'   , 0)          # Cokelet light parameter, TODO: need to get value from Georgina
+    ('k_chlC'   , 0)          # Cokelet light parameter, TODO: need to get value from Georgina
+    ('a_frac'   , 0.58)       # TODO: what is this
+    ('a_mu1'    , 0.35)       # TODO: what is this
     # Biological conversions
     ('xi'       , 0.0126),    # Nitrogen,Carbon ratio (mmol N / mg C)
     ('ccr'      , 65.0),	  # Carbon,Chlorophyll ratio (mg C / mg Chl-a), small phyto
     ('ccrPhL'   , 25.0),      # Carbon,Chlorophyll ratio (mg C / mg Chl-a), large phyto
-    # Light
-    ('k_ext'    , 0.046),	  # Extinction coefficient due to seawater (1/m)
-    ('k_chl'    , 0.121),	  # Extinction coefficient due to Phy. (1/m)
-    # Small Phytoplankton
-    ('alphaPhS' , 5.6),	    # Slope of P-I curve (mg C/mg Chl-a/E/m2)
-    ('DiS'      , 0.5),	    # Doubling rate parameter
-    ('DpS'      , 0.0275),	# Doubling rate exponent
-    ('k1PhS'    , 1.0),     # Half-saturation constant for NO3 limitation
-    ('k2PhS'    , 0.5),	    # Half-saturation constant for NH4 limitation
-    # Large Phytoplankton
-    ('alphaPhL' , 2.2),	    # Slope of P-I curve (mg C/mg Chl-a/E/m2)
-    ('DiL'      , 1.0),	    # Doubling rate parameter
-    ('DpL'      , 0.0275),  # Doubling rate exponent
-    ('k1PhL'    , 2.0),	    # Half-saturation constant for NO3 limitation
-    ('k2PhL'    , 2.0),	    # Half-saturation constant for NH4 limitation
-    # Phytoplankotn Respiratiohn
-    ('respPhS'  , 0.02),      # Specific respiration rate for PhS
-    ('respPhL'  , 0.02),      # Specific respiration rate for PhL
-    ('TmaxPhS'  , 10.0),
-    ('KtBm_PhS' , 0.03),
-    ('TmaxPhL'  , 10.0),
-    ('KtBm_PhL' , 0.03),
-    # microzoo resp
-    ('respMZS'  , 0.1),       # Specific respiration rate for MZS 0.2d0
-    ('respMZL'  , 0.08),      # Specific respiration rate for MZL  0.1d0
-    ('TmaxMZS'  , 5.0),
-    ('KtBm_MZS' , 0.069),
-    ('TmaxMZL'  , 8.0),
-    ('KtBm_MZL' , 0.069),
-    # Feeding preference of Large Microzooplankton
-    ('fpPhSMZL' , 1.0),	    # for Small Phytoplankton
-    ('fpPhLMZL' , 0.2),	    # for Large Phytoplankton
-    ('fpMZSMZL' , 0.0),       # for Small Microzooplankton
-    # Large Microzooplankton growth
-    ('eMZL'     , 0.4),	    # maximum specific ingestion rate (mg C/mg C/d)
-    ('Q10MZL'   , 2.0),	    # Q10 for growth rate
-    ('Q10MZLT'  , 5.0),	    # Temperature coefficient for Q10 (deg. C)
-    ('fMZL'     , 20.0),    # Half-saturation constant for grazing (mg C/m3)
-    ('gammaMZL' , 0.7),	    # Growth efficiency
-    # Feeding preference of Copepods
-    ('fpPhSCop' , 0.8),	    # for Small Phytoplankton
-    ('fpPhLCop' , 0.7),	    # for Large Phytoplankton
-    ('fpMZSCop' , 0.0),	    # for Small Microzooplankton
-    ('fpMZLCop' , 0.5),	    # for Large Microzooplankton
-    # Copepods growth
-    ('eCop'     , 0.4),
-    ('Q10Cop'   , 1.7),
-    ('Q10CopT'  , 5.0),	    # Temperature coefficient for Q10 (deg. C)
+    ('FeC'      , 1.667e-4),  # Fe(umol),Carbon(mg) is 2 umol Fe , mol C
+    # Phytoplankton growth parameters
+    ('DiS'      , 0.5),	      # Doubling rate parameter
+    ('DiL'      , 1.0),	      # Doubling rate parameter
+    ('DpS'      , 0.0275),	  # Doubling rate exponent
+    ('DpL'      , 0.0275),    # Doubling rate exponent
+    ('k1PhS'    , 1.0),       # Half-saturation constant for NO3 limitation
+    ('k1PhL'    , 2.0),	      # Half-saturation constant for NO3 limitation
+    ('k2PhS'    , 0.5),	      # Half-saturation constant for NH4 limitation
+    ('k2PhL'    , 2.0),	      # Half-saturation constant for NH4 limitation
+    ('FeCritPS' , 2.0),       # TODO: get description
+    ('FeCritPL' , 2.0),       # TODO: get description
+    ('kfePhS'   , 0.3),       # half-saturation const. PhS (umol per m-3)
+    ('kfePhL'   , 1.0),       # half-saturation const. PhL (umol per m-3)
+    # Feeding preference
+    ('fpPhSMZL' , 1.0),	      # PhS->MZL Feeding preference
+    ('fpPhLMZL' , 0.2),	      # PhL->MZL Feeding preference
+    ('fpMZSMZL' , 0.0),       # PhS->Cop Feeding preference
+    ('fpPhSCop' , 0.8),	      # PhL->Cop Feeding preference
+    ('fpPhLCop' , 0.7),	      # MZL->Cop Feeding preference
+    ('fpMZLCop' , 0.5),	      # PhS->NCa Feeding preference
+    ('fpPhSNCa' , 0.1),	      # PhL->NCa Feeding preference
+    ('fpPhLNCa' , 1.0),	      # MZL->NCa Feeding preference
+    ('fpMZLNCa' , 1.0),	      # PhS->Eup Feeding preference
+    ('fpPhLEup' , 1.0),	      # PhL->Eup Feeding preference
+    ('fpMZLEup' , 1.0),	      # MZL->Eup Feeding preference
+    ('fpCopEup' , 0.2),	      # Cop->Eup Feeding preference
+    ('fpCopJel' , 1.0),       # Cop->Jel Feeding preference
+    ('fpNCaJel' , 1.0),       # NCa->Jel Feeding preference
+    ('fpEupJel' , 1.0),       # Eup->Jel Feeding preference
+    # Zooplankton growth and feeding
+    ('eMZL'     ,  0.4),	  # maximum specific ingestion rate (mg C/mg C/d)
+    ('eCop'     ,  0.4),
+    ('eNCa'     ,  0.3),
+    ('eEup'     ,  0.3),
+    ('eJel'     ,  0.069),
+    ('Q10MZL'   ,  2.0),	  # Q10 for growth rate
+    ('Q10Cop'   ,  1.7),
+    ('Q10NCa'   ,  1.6),	    
+    ('Q10Eup'   ,  1.50),	
+    ('Q10Jele'  ,  2.4),
+    ('Q10MZLT'  ,  5.0),	  # Temperature coefficient for Q10 (deg. C)
+    ('Q10CopT'  ,  5.0),
+    ('Q10NCaT'  ,  5.0),
+    ('Q10EupT'  ,  5.0),
+    ('Q10JelTe' , 10.0),
+    ('fMZL'     , 20.0),      # Half-saturation constant for grazing (mg C/m3)
     ('fCop'     , 30.0),
-    ('gammaCop' , 0.7),	    # Growth efficiency
-    # Feeding preference of Neocalanus
-    ('fpPhSNCa' , 0.1),	    # for Small Phytoplankton
-    ('fpPhLNCa' , 1.0),	    # for Large Phytoplankton
-    ('fpMZLNCa' , 1.0),	    # for Large Microzooplankton
-    # Neocalanus growth
-    ('eNCa'     ,  0.3),	    # maximum specific ingestion rate (mg C/mg C/d)
-    ('Q10NCa'   ,  1.6),	    # Q10 for growth rate
-    ('Q10NCaT'  ,  5.0),	    # Temperature coefficient for Q10 (deg. C)
-    ('fNCa'     , 30.0),	    # Half-saturation constant for grazing (mg C/m3)
-    ('gammaNCa' ,  0.7),	    # Growth efficiency
-    # Feeding preference of Euphausiids
-    ('fpPhLEup' , 1.0),	    # for Large Phytoplankton
-    ('fpMZSEup' , 0.0),	    # for Small Microzooplankton
-    ('fpMZLEup' , 1.0),	    # for Large Microzooplankton
-    ('fpCopEup' , 0.2),	    # for Copepods
-    # Euphausiids growth
-    ('eEup'     , 0.3),	    # maximum specific ingestion rate (mg C/mg C/d)
-    ('Q10Eup'   , 1.50),	# Q10 for growth rate
-    ('Q10EupT'  , 5.0),	    # Temperature coefficient for Q10 (deg. C)
-    ('fEup'     , 40.0),	# Half-saturation constant for grazing (mg C/m3)
-    ('gammaEup' , 0.7),	    # Growth efficiency
-    # Small Phytoplankton senescence
-    ('mPhS'     , 0.01),	    # daily linear mortality rate (1/d)
-    # Large Phytoplankton senescence
-    ('mPhL'     , 0.01),	    # daily linear mortality rate (1/d)
-    # Zooplankton linear mortality
-    ('mMZL'     , 0.001),	    # Daily mortality for Large Microzoo. (1/d)0.05d0
-    ('mCop'     , 0.001),	    # Daily mortality for Copepods (1/d)
-    ('mNCa'     , 0.001),	    # Daily mortality for Neocalanus (1/d)
-    ('mEup'     , 0.001),	    # Daily mortality for Euphausiids (1/d)
-    # Zooplankton nonlinear mortality / predation closure
+    ('fNCa'     , 30.0),
+    ('fEup'     , 40.0),
+    ('fJel'     ,  0.01),
+    ('gammaMZL' ,  0.7),	  # Growth efficiency
+    ('gammaCop' ,  0.7),
+    ('gammaNCa' ,  0.7),
+    ('gammaEup' ,  0.7),
+    ('gammaJel' ,  1.0), 
+    # Phytoplankton senescence
+    ('mPhS'     , 0.01),	  # daily linear mortality rate (1/d)
+    ('mPhL'     , 0.01),	  # daily linear mortality rate (1/d)
+    # Predation closure
     ('mpredMZL' , 0.010),     # Daily mortality for Large Microzoo. (1/d)
-    ('mpredCop' , 0.05),	    # Daily mortality for Copepods (1/d)
-    ('mpredNCa' , 0.05),	    # Daily mortality for Neocalanus (1/d)
-    ('mpredEup' , 0.05),	    # Daily mortality for Euphausiids (1/d)
-    # Sinking and regeneration terms
-    ('wPhS'     , 0.05),	    # Sinking rate for Small Phytoplankton (m/d)
+    ('mpredCop' , 0.05),	  # Daily mortality for Copepods (1/d)
+    ('mpredNCa' , 0.05),	  # Daily mortality for Neocalanus (1/d)
+    ('mpredEup' , 0.05),	  # Daily mortality for Euphausiids (1/d)
+    ('mpredJel' , 0.006),
+    # Sinking
+    ('wPhS'     , 0.05),	  # Sinking rate for Small Phytoplankton (m/d)
     ('wPhL'     , 1.0),       # Sinking rate for Large Phytoplankton (m/d)
     ('wDet'     , 1.0),       # Sinking rate for Detritus (m/d)
-    ('wDetF'    , 10.0),	    # Sinking rate for Detritus (m/d)
-    # Terms to define the Iron climatology field ( 2 nM = no iron limitation)
+    ('wDetF'    , 10.0),	  # Sinking rate for Detritus (m/d)
+    # Respiration
+    ('respPhS'  , 0.02),      # Specific respiration rate for PhS
+    ('respPhL'  , 0.02),      # Specific respiration rate for PhL
+    ('respMZL'  , 0.08),      # Specific respiration rate for MZL  0.1d0
+    ('respCop'  , 0.04),      # Basal metabolic rate day**-1
+    ('respNCa'  , 0.03),      # Basal metabolic rate day**-1
+    ('respEup'  , 0.02),      # Basal metabolic rate day**-1 !0.044d0
+    ('respJel'  , 0.02),      # Basal metabolic rate day**-1 0- try 2 - see above
+    ('Q10Jelr'  , 2.8),       # Jel Q10 for respiration rate
+    ('Q10JelTr' ,10.0),       # Jel Temperature coefficient for resp Q10 (deg. C)
+    ('KtBm_PhS' , 0.03),      # temperature coefficient for respiration (1/deg C)
+    ('KtBm_PhL' , 0.03),
+    ('KtBm_MZL' , 0.069),
+    ('ktbmC'    , 0.05),      # Temperature response degrees C**-1
+    ('ktbmN'    , 0.05),      # Temperature response degrees C**-1
+    ('ktbmE'    , 0.069),     # Temperature response degrees C**-1
+    ('TmaxPhS'  ,10.0),       # reference temperature for respiration (deg C)
+    ('TmaxPhL'  ,10.0),
+    ('TmaxMZL'  , 8.0),
+    ('TrefC'    ,15.0),       # Reference temperature degrees C
+    ('TrefN'    , 5.0),       # Reference temperature degrees C
+    ('TrefE'    , 5.0),       # Reference temperature degrees C
+    ('TrefJ'    , 10.),       # Reference temperature degrees C
+    # Iron climatology
     ('Feinlo'   ,   2.0),     # inshore/surface (micromol Fe m-3 or nM)
     ('Feinhi'   ,   4.0),     # inshore/deep    (micromol Fe m-3 or nM)
     ('Feinh'    ,  20.0),     # inshore isobath of transition (m)
     ('Feofflo'  ,   0.01),    # offshore/surface (micromol Fe m-3 or nM)
     ('Feoffhi'  ,   2.0),     # offshore/deep    (micromol Fe m-3 or nM)
     ('Feoffh'   , 100.0),     # offshore isobath of transition (m)
-    # Iron limitation
-    ('kfePhS'   , 0.3),       # half-saturation const. PhS (umol per m-3)
-    ('kfePhL'   , 1.0),       # half-saturation const. PhL (umol per m-3)
-    ('FeC'      , 1.667e-4),  # Fe(umol),Carbon(mg) is 2 umol Fe , mol C
     # Diapause
-    ('NCmaxz'   , 500.0),	    # highest depth of diapausing NC (m)
-    ('wNCrise'  ,  12.0),	    # upward velocity (m/day), tuned not data
-    ('wNCsink'  ,  11.0),	    # downward velocity (m/day), tuned not data
-    ('RiseStart',   0.0),	    # Date NC begin to move upward (Day of Year)
-    ('RiseEnd'  ,  60.0),	    # Date NC stop moving upward (Day of Year)
-    ('SinkStart', 155.0),	    # Date NC begin to move downward (Day of Year)
-    ('SinkEnd'  , 366.0),	    # Date NC stop moving downward (Day of Year)
-    # Zoobenthos Parameters
-    ('iremin'   , 0.800),
-    ('q10'      , 1.5),
-    ('q10r'     , 1.5),
-    ('Rup'      , 0.05),
-    ('KupD'     , 2000.),
-    ('KupP'     , 10.),
-    ('LupD'     , 292.),
-    ('LupP'     , 1.),
-    ('Qres'     , 0.25),
-    ('Rres'     , 0.0027),
-    ('rmort'    , 0.0021),
-    ('eex'      , [0.3, 0.3]),
-    ('eexD'     , [0.5, 0.7]),
-    ('prefD'    , [1.0, 0.1]),
-    ('prefPL'   , [1.0, 0.1]),
-    ('prefPS'   , [0.1, 0.1]),
-    ('T0ben'    , 5.0),
-    ('T0benr'   , 5.0),
-    ('BenPred'  , 0.000001),
-    # Jellyfish Parameters
-    ('eJel'     , 0.069),
-    ('gammaJel' , 1.0),      # greater than 1 because have unmodeled food source
-    ('mpredJel' , 0.006),
-    ('fpCopJel' , 1.0),
-    ('fpNCaJel' , 1.0),
-    ('fpEupJel' , 1.0),
-    ('Q10Jelr'  , 2.8),
-    ('Q10Jele'  , 2.4),
-    ('Q10JelTr' ,10.0),
-    ('Q10JelTe' ,10.0),
-    ('fJel'     , 0.01),
-    # Ice Biology Params
-    ('alphaIb'  , 0.80),
-    ('betaI'    , 0.018),
-    ('inhib'    , 1.46),
-    ('ksnut1'   , 1.0),
-    ('ksnut2'   , 4.0),
-    ('R0i'      , 0.05),    # respiration fraction
-    ('rg0'      , 0.01),    # mortality +excretion 9.23e-4 h-1
-    ('rg'       , 0.03),
-    ('annit'    , 0.0149),
-    ('aidz'     , 0.02),
-    ('mu0'      , 2.4),
-    ('respJel'  , 0.02),   # Basal metabolic rate day**-1 0- try 2 - see above
-    ('ktbmJ'    , 0.05),   # Temperature response degrees C**-1
-    ('TrefJ'    , 10.),    # Reference temperature degrees C
-    ('respCop'  , 0.04),   # Basal metabolic rate day**-1
-    ('ktbmC'    , 0.05),   # Temperature response degrees C**-1
-    ('TrefC'    , 15.),    # Reference temperature degrees C
-    ('respNCa'  , 0.03),   # Basal metabolic rate day**-1
-    ('ktbmN'    , 0.05),   # Temperature response degrees C**-1
-    ('TrefN'    , 5.),     # Reference temperature degrees C
-    ('respEup'  , 0.02),   # Basal metabolic rate day**-1 !0.044d0
-    ('ktbmE'    , 0.069),  # Temperature response degrees C**-1
-    ('TrefE'    , 5.),     # Reference temperature degrees C
-    ('tI0'      , 0.0095),
-    ('KI'       , 4.),
+    ('wNCrise'  ,  12.0),	  # upward velocity (m/day), tuned not data
+    ('wNCsink'  ,  11.0),	  # downward velocity (m/day), tuned not data
+    ('RiseStart',   0.0),	  # Date NC begin to move upward (Day of Year)
+    ('RiseEnd'  ,  60.0),	  # Date NC stop moving upward (Day of Year)
+    ('SinkStart', 155.0),	  # Date NC begin to move downward (Day of Year)
+    ('SinkEnd'  , 366.0),	  # Date NC stop moving downward (Day of Year)
+    # Reminaralization and nitrification
+    ('Pv0'      , 0.1),       # PON dicompositon at 0 deg C (d-1)
+    ('PvT'      , 0.069),     # Temperature coefficient (deg C-1)
     ('Nitr0'    , 0.0107),
-    ('KnT'      , 0.0693),
-    ('Pv0'      , 0.1),    # PON dicompositon at 0 deg C (d-1)
-    ('PvT'      , 0.069),  # Temperature coefficient (deg C-1)
-    ('KNH4Nit'  , 0.057),  # Half Sat Con mg N/m3/day 0.08d0
-    ('ToptNtr'  , 20.),
     ('ktntr'    , 0.002),
+    ('KNH4Nit'  , 0.057),     # Half Sat Con mg N/m3/day 0.08d0
+    # Benthos
+    ('iremin'   , 0.800),       # related to nitrification bflx TODO: define
+    ('q10r'     , 1.5),         # Ben Q10 for feeding
+    ('Rup'      , 0.05),        # Ben Feeding rate (1/d)
+    ('KupD'     , 2000.),       # Ben Half-saturation constant for feeding on pelagic food (mg C/m^2)
+    ('KupP'     , 10.),         # Ben Half-saturation constant for feeding on benthic detritus (mg C/m^2)
+    ('LupD'     , 292.),        # Ben Lower threshold for feeding on benthic detritus (mg C/m^2)
+    ('LupP'     , 1.),          # Ben Lower threshold for feeding on pelagic food (mg C/m^2)
+    ('Qres'     , 0.25),        # Ben Active metabolism reference? (1/d)
+    ('Rres'     , 0.0027),      # Ben Basal metabolism reference? (1/d)
+    ('rmort'    , 0.0021),      # Ben mortality rate (1/d)
+    ('eex'      , [0.3, 0.3]),  # Ben fraction of pelagic food excreted
+    ('eexD'     , [0.5, 0.7]),  # Ben fraction of detrital food excreted
+    ('prefD'    , [1.0, 0.1]),  # BenDet->Ben feeding preference TODO: rename to match others?
+    ('prefPL'   , [1.0, 0.1]),  # PhL->Ben feeding preference TODO: rename to match others?
+    ('prefPS'   , [0.1, 0.1]),  # PhS->Ben feeding preference TODO: rename to match others?
+    ('T0benr'   , 5.0),         # Ben Q10 Reference temperature for feeding
+    ('BenPred'  , 0.000001),    # Ben mortality rate due to undefined predation (1/d)
+    # Ice biology
+    ('alphaIb'  , 0.80),        # IcePhL Chl-a specific attenuation coefficient (W^-1 m^-2)
+    ('betaI'    , 0.018),       # IcePhL photosynthetic efficiency (W^-1 m^-2)
+    ('inhib'    , 1.46),        # IcePhL NH4 inhibition on NO3 uptake (m^3/mmol N)
+    ('ksnut1'   , 1.0),         # IcePhL half-saturation constant for NO3 (mmolN/m^3)
+    ('ksnut2'   , 4.0),         # IcePhL half-saturation constant for NH4 (mmolN/m^3)
+    ('mu0'      , 2.4),         # IcePhL maximum growth rate at 0 deg C (1/d)
+    ('R0i'      , 0.05),        # IcePhL respiration rate (1/d)
+    ('rg0'      , 0.01),        # IcePhL mortality rate at 0 deg C (1/d)
+    ('rg'       , 0.03),        # IcePhL temperature coefficient for mortality (1/deg C)
+    ('annit'    , 0.0149),      # IcePhL nitrification factor (1/d)
+    ('aidz'     , 0.02),        # Ice thickness (m)
     # Horizontal diffusion of biological tracers
-    ('TNU2' , 15*[25.0] + [5.0]), # m2/s
-    ('TNU4' , 15*[0.0] + [2.0]),  # m2/s
+    ('TNU2'     , 15*[25.0] + [5.0]), # m2/s
+    ('TNU4'     , 15*[0.0] + [2.0]),  # m2/s
     # Vertical mixing coefficients for biological tracers
-    ('AKT_BAK' , 15*[1.0e-6]),
+    ('AKT_BAK'  , 15*[1.0e-6]),
     # Nudging/relaxation time scales
-    ('TNUDG' , 2*[360.0] + 12*[36000.0] + [360.0]),
+    ('TNUDG'    , 2*[360.0] + 12*[36000.0] + [360.0]),
     # Activate writing of biological tracers into history file
     ('Hout', OrderedDict((
         ('idTvar'    , 15*[True] + [True]), # State variables
