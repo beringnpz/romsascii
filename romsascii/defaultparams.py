@@ -17,22 +17,22 @@ from collections import OrderedDict
 def ocean():
     """
     Populate dictionary with default ocean.in ROMS parameters
-    
+
     Stores parameters related to the physical ROMS simulation that are written
     in the default standard input file (usually named ocean.in, or a variant
     thereof)
-    
+
     Note that although the ROMS documentation states that parameters may be
     passed in any order, that's not entirely true.  Certain restrictions (such
     as NtileI coming before NtileJ) exist. So this function returns an ordered
     dictionary to preserve the order of keys for writing later.
-    
+
     Returns:
         d: ROMS parameter dictionary.  Keys correspond to ROMS variables.
     """
     nat = 2
     npt = 167
-    
+
     d = OrderedDict((
         # Application title
         ('TITLE', 'Bering Sea 10 km Grid'),
@@ -290,11 +290,11 @@ def ocean():
 def bestnpz():
     """
     Populate dictionary with BESTNPZ biological parameters
-    
+
     Stores parameters related to the BESTNPZ (Bering Sea NPZ) biological
     module.  These parameters are input through the file indicated by the
     BPARNAM variable.
-    
+
     Returns:
         d: ROMS parameter dictionary.  Keys correspond to ROMS variables.
     """
@@ -304,60 +304,62 @@ def bestnpz():
     ('BioIter'  , 1),         # Number of iterations for nonlinear convergence.
     # Light
     ('PARfrac'  , 0.5),       # Fraction of irradiance that is photosynthetically available (PAR)
-    ('k_ext'    , 0.046),	  # Extinction coefficient due to seawater (1/m)
-    ('k_chl'    , 0.121),	  # Extinction coefficient due to Phy. (1/m)
-    ('k_extZ'   , 0)          # Cokelet light parameter, TODO: need to get value from Georgina
-    ('k_chlA'   , 0)          # Cokelet light parameter, TODO: need to get value from Georgina
-    ('k_chlB'   , 0)          # Cokelet light parameter, TODO: need to get value from Georgina
-    ('k_chlC'   , 0)          # Cokelet light parameter, TODO: need to get value from Georgina
-    ('a_frac'   , 0.58)       # TODO: what is this
-    ('a_mu1'    , 0.35)       # TODO: what is this
+    ('k_ext'    , 0.046),     # Extinction coefficient due to seawater (1/m)
+    ('k_chl'    , 0.121),     # Extinction coefficient due to Phy. (1/m)
+    ('k_extZ'   , 0),         # Cokelet light parameter, TODO: need to get value from Georgina
+    ('k_chlA'   , 0),         # Cokelet light parameter, TODO: need to get value from Georgina
+    ('k_chlB'   , 0),         # Cokelet light parameter, TODO: need to get value from Georgina
+    ('k_chlC'   , 0),         # Cokelet light parameter, TODO: need to get value from Georgina
+    ('a_frac'   , 0.58),      # TODO: what is this
+    ('a_mu1'    , 0.35),      # TODO: what is this
     # Biological conversions
     ('xi'       , 0.0126),    # Nitrogen,Carbon ratio (mmol N / mg C)
-    ('ccr'      , 65.0),	  # Carbon,Chlorophyll ratio (mg C / mg Chl-a), small phyto
+    ('ccr'      , 65.0),      # Carbon,Chlorophyll ratio (mg C / mg Chl-a), small phyto
     ('ccrPhL'   , 25.0),      # Carbon,Chlorophyll ratio (mg C / mg Chl-a), large phyto
     ('FeC'      , 1.667e-4),  # Fe(umol),Carbon(mg) is 2 umol Fe , mol C
     # Phytoplankton growth parameters
-    ('DiS'      , 0.5),	      # Doubling rate parameter
-    ('DiL'      , 1.0),	      # Doubling rate parameter
-    ('DpS'      , 0.0275),	  # Doubling rate exponent
+    ('DiS'      , 0.5),       # Doubling rate parameter
+    ('DiL'      , 1.0),       # Doubling rate parameter
+    ('DpS'      , 0.0275),    # Doubling rate exponent
     ('DpL'      , 0.0275),    # Doubling rate exponent
     ('k1PhS'    , 1.0),       # Half-saturation constant for NO3 limitation
-    ('k1PhL'    , 2.0),	      # Half-saturation constant for NO3 limitation
-    ('k2PhS'    , 0.5),	      # Half-saturation constant for NH4 limitation
-    ('k2PhL'    , 2.0),	      # Half-saturation constant for NH4 limitation
+    ('k1PhL'    , 2.0),       # Half-saturation constant for NO3 limitation
+    ('k2PhS'    , 0.5),       # Half-saturation constant for NH4 limitation
+    ('k2PhL'    , 2.0),       # Half-saturation constant for NH4 limitation
     ('FeCritPS' , 2.0),       # TODO: get description
     ('FeCritPL' , 2.0),       # TODO: get description
     ('kfePhS'   , 0.3),       # half-saturation const. PhS (umol per m-3)
     ('kfePhL'   , 1.0),       # half-saturation const. PhL (umol per m-3)
     # Feeding preference
-    ('fpPhSMZL' , 1.0),	      # PhS->MZL Feeding preference
-    ('fpPhLMZL' , 0.2),	      # PhL->MZL Feeding preference
-    ('fpMZSMZL' , 0.0),       # PhS->Cop Feeding preference
-    ('fpPhSCop' , 0.8),	      # PhL->Cop Feeding preference
-    ('fpPhLCop' , 0.7),	      # MZL->Cop Feeding preference
-    ('fpMZLCop' , 0.5),	      # PhS->NCa Feeding preference
-    ('fpPhSNCa' , 0.1),	      # PhL->NCa Feeding preference
-    ('fpPhLNCa' , 1.0),	      # MZL->NCa Feeding preference
-    ('fpMZLNCa' , 1.0),	      # PhS->Eup Feeding preference
-    ('fpPhLEup' , 1.0),	      # PhL->Eup Feeding preference
-    ('fpMZLEup' , 1.0),	      # MZL->Eup Feeding preference
-    ('fpCopEup' , 0.2),	      # Cop->Eup Feeding preference
-    ('fpCopJel' , 1.0),       # Cop->Jel Feeding preference
-    ('fpNCaJel' , 1.0),       # NCa->Jel Feeding preference
-    ('fpEupJel' , 1.0),       # Eup->Jel Feeding preference
+    ('fpPhSMZL' , 1.0),       # PhS->MZL  Feeding preference
+    ('fpPhLMZL' , 0.2),       # PhL->MZL  Feeding preference
+    ('fpMZSMZL' , 0.0),       # PhS->Cop  Feeding preference
+    ('fpPhSCop' , 0.8),       # PhL->Cop  Feeding preference
+    ('fpPhLCop' , 0.7),       # MZL->Cop  Feeding preference
+    ('fpMZLCop' , 0.5),       # PhS->NCa  Feeding preference
+    ('fpPhSNCa' , 0.1),       # PhL->NCa  Feeding preference
+    ('fpPhLNCa' , 1.0),       # MZL->NCa  Feeding preference
+    ('fpMZLNCa' , 1.0),       # PhS->Eup  Feeding preference
+    ('fpPhLEup' , 1.0),       # PhL->Eup  Feeding preference
+    ('fpMZLEup' , 1.0),       # MZL->Eup  Feeding preference
+    ('fpCopEup' , 0.2),       # Cop->Eup  Feeding preference
+    ('fpDetEup' , 0.0),       # Det->Eup  Feeding preference TODO: get value
+    ('fpDetEupO', 0.0),       # Det->EupO Feeding preference TODO: get value
+    ('fpCopJel' , 1.0),       # Cop->Jel  Feeding preference
+    ('fpNCaJel' , 1.0),       # NCa->Jel  Feeding preference
+    ('fpEupJel' , 1.0),       # Eup->Jel  Feeding preference
     # Zooplankton growth and feeding
-    ('eMZL'     ,  0.4),	  # maximum specific ingestion rate (mg C/mg C/d)
+    ('eMZL'     ,  0.4),      # maximum specific ingestion rate (mg C/mg C/d)
     ('eCop'     ,  0.4),
     ('eNCa'     ,  0.3),
     ('eEup'     ,  0.3),
     ('eJel'     ,  0.069),
-    ('Q10MZL'   ,  2.0),	  # Q10 for growth rate
+    ('Q10MZL'   ,  2.0),      # Q10 for growth rate
     ('Q10Cop'   ,  1.7),
-    ('Q10NCa'   ,  1.6),	    
-    ('Q10Eup'   ,  1.50),	
+    ('Q10NCa'   ,  1.6),
+    ('Q10Eup'   ,  1.50),
     ('Q10Jele'  ,  2.4),
-    ('Q10MZLT'  ,  5.0),	  # Temperature coefficient for Q10 (deg. C)
+    ('Q10MZLT'  ,  5.0),      # Temperature coefficient for Q10 (deg. C)
     ('Q10CopT'  ,  5.0),
     ('Q10NCaT'  ,  5.0),
     ('Q10EupT'  ,  5.0),
@@ -367,25 +369,25 @@ def bestnpz():
     ('fNCa'     , 30.0),
     ('fEup'     , 40.0),
     ('fJel'     ,  0.01),
-    ('gammaMZL' ,  0.7),	  # Growth efficiency
+    ('gammaMZL' ,  0.7),      # Growth efficiency
     ('gammaCop' ,  0.7),
     ('gammaNCa' ,  0.7),
     ('gammaEup' ,  0.7),
-    ('gammaJel' ,  1.0), 
+    ('gammaJel' ,  1.0),
     # Phytoplankton senescence
-    ('mPhS'     , 0.01),	  # daily linear mortality rate (1/d)
-    ('mPhL'     , 0.01),	  # daily linear mortality rate (1/d)
+    ('mPhS'     , 0.01),      # daily linear mortality rate (1/d)
+    ('mPhL'     , 0.01),      # daily linear mortality rate (1/d)
     # Predation closure
     ('mpredMZL' , 0.010),     # Daily mortality for Large Microzoo. (1/d)
-    ('mpredCop' , 0.05),	  # Daily mortality for Copepods (1/d)
-    ('mpredNCa' , 0.05),	  # Daily mortality for Neocalanus (1/d)
-    ('mpredEup' , 0.05),	  # Daily mortality for Euphausiids (1/d)
+    ('mpredCop' , 0.05),      # Daily mortality for Copepods (1/d)
+    ('mpredNCa' , 0.05),      # Daily mortality for Neocalanus (1/d)
+    ('mpredEup' , 0.05),      # Daily mortality for Euphausiids (1/d)
     ('mpredJel' , 0.006),
     # Sinking
-    ('wPhS'     , 0.05),	  # Sinking rate for Small Phytoplankton (m/d)
+    ('wPhS'     , 0.05),      # Sinking rate for Small Phytoplankton (m/d)
     ('wPhL'     , 1.0),       # Sinking rate for Large Phytoplankton (m/d)
     ('wDet'     , 1.0),       # Sinking rate for Detritus (m/d)
-    ('wDetF'    , 10.0),	  # Sinking rate for Detritus (m/d)
+    ('wDetF'    , 10.0),      # Sinking rate for Detritus (m/d)
     # Respiration
     ('respPhS'  , 0.02),      # Specific respiration rate for PhS
     ('respPhL'  , 0.02),      # Specific respiration rate for PhL
@@ -417,18 +419,20 @@ def bestnpz():
     ('Feoffhi'  ,   2.0),     # offshore/deep    (micromol Fe m-3 or nM)
     ('Feoffh'   , 100.0),     # offshore isobath of transition (m)
     # Diapause
-    ('wNCrise'  ,  12.0),	  # upward velocity (m/day), tuned not data
-    ('wNCsink'  ,  11.0),	  # downward velocity (m/day), tuned not data
-    ('RiseStart',   0.0),	  # Date NC begin to move upward (Day of Year)
-    ('RiseEnd'  ,  60.0),	  # Date NC stop moving upward (Day of Year)
-    ('SinkStart', 155.0),	  # Date NC begin to move downward (Day of Year)
-    ('SinkEnd'  , 366.0),	  # Date NC stop moving downward (Day of Year)
+    ('wNCrise'  ,  12.0),     # upward velocity (m/day), tuned not data
+    ('wNCsink'  ,  11.0),     # downward velocity (m/day), tuned not data
+    ('RiseStart',   0.0),     # Date NC begin to move upward (Day of Year)
+    ('RiseEnd'  ,  60.0),     # Date NC stop moving upward (Day of Year)
+    ('SinkStart', 155.0),     # Date NC begin to move downward (Day of Year)
+    ('SinkEnd'  , 366.0),     # Date NC stop moving downward (Day of Year)
     # Reminaralization and nitrification
     ('Pv0'      , 0.1),       # PON dicompositon at 0 deg C (d-1)
     ('PvT'      , 0.069),     # Temperature coefficient (deg C-1)
     ('Nitr0'    , 0.0107),
     ('ktntr'    , 0.002),
     ('KNH4Nit'  , 0.057),     # Half Sat Con mg N/m3/day 0.08d0
+    ('tI0'      , 0),         # Threshold for light limitation of nitrification (W m^-2) TODO: get value
+    ('KI'       , 0),         # Half saturation light intensity for nitrification (w m^-2) TODO: get value
     # Benthos
     ('iremin'   , 0.800),       # related to nitrification bflx TODO: define
     ('q10r'     , 1.5),         # Ben Q10 for feeding
@@ -487,11 +491,11 @@ def bestnpz():
 def feast(flag=False):
     """
     Populate dictionary with FEAST biological parameters
-    
+
     Stores parameters related to the FEAST (Bering Sea fish) biological
     module.  These parameters are input through the file indicated by the
     BPARNAM variable.  Includes BESTNPZ params for lower trophic levels.
-    
+
     Returns:
         d: ROMS parameter dictionary.  Keys correspond to ROMS variables.
     """
@@ -629,8 +633,8 @@ def feast(flag=False):
     ]),
     ('fsh_alpha_G', [
         [ 1,  16.975, 12.975, 12.975, 16.975, 16.975, 12.975, 16.975, 160.73, 12.975, 12.975, 234.73, 140.73, 50.975, 12.975, 228.62],
-        [ 2,  5.4260, 5.4260, 5.4260, 5.4260, 5.4260, 5.4260, 5.4260, 5.4260, 5.4260, 5.4260, 41.372, 23.502, 80.135, 133.02, 12.505],   
-        [ 3,  3.0   , 6.6279, 6.6279, 6.6279, 6.6279, 6.6279, 6.6279, 6.6279, 6.6279, 6.6279, 27.298, 3.4421, 427.95, 21.797, 5.6126],  
+        [ 2,  5.4260, 5.4260, 5.4260, 5.4260, 5.4260, 5.4260, 5.4260, 5.4260, 5.4260, 5.4260, 41.372, 23.502, 80.135, 133.02, 12.505],
+        [ 3,  3.0   , 6.6279, 6.6279, 6.6279, 6.6279, 6.6279, 6.6279, 6.6279, 6.6279, 6.6279, 27.298, 3.4421, 427.95, 21.797, 5.6126],
         [ 4,  18.975, 12.975, 12.975, 12.975, 12.975, 12.975, 12.975, 12.975, 12.975, 12.975, 194.73, 3.3176, 12.975, 12.975, 228.62],
         [ 5,  18.975, 12.975, 12.975, 12.975, 12.975, 12.975, 12.975, 12.975, 12.975, 12.975, 194.73, 3.3176, 12.975, 12.975, 228.62],
         [ 6,  18.975, 12.975, 12.975, 12.975, 12.975, 12.975, 12.975, 12.975, 12.975, 12.975, 194.73, 3.3176, 12.975, 12.975, 228.62],
@@ -738,11 +742,11 @@ def feast(flag=False):
     ))
     # In some of these matrices, float values are typed as integers... quick
     # correction of that
-    
+
     checkfloats(d)
-    
+
     dnpz = bestnpz()
-    
+
     if flag:
         return dict(merge_dicts(dnpz, d))
     else:
@@ -761,7 +765,7 @@ def checkfloats(x):
         elif isinstance(x[ky], dict):
             x[ky] = checkfloats(x[ky])
     return x
-    
+
 
 def list2floats(x):
     """
@@ -772,7 +776,7 @@ def list2floats(x):
                 all(isinstance(y, int) for y in x)):
             x = [float(i) for i in x]
     return x
-    
+
 
 def merge_dicts(*dict_args):
     '''
@@ -783,14 +787,14 @@ def merge_dicts(*dict_args):
     for dictionary in dict_args:
         result.update(dictionary)
     return result
-    
+
 def ice():
     """
     Populate dictionary with ice model parameters
-    
-    Stores parameters related to the ice model.  These parameters are input 
+
+    Stores parameters related to the ice model.  These parameters are input
     through the file indicated by the IPARNAM variable.
-    
+
     Returns:
         d: ROMS parameter dictionary.  Keys correspond to ROMS variables.
     """
@@ -860,18 +864,18 @@ def ice():
     ('t0deg', 273.15)
     ))
     return d
-    
+
 def stations():
     """
     Populate dictionary with station output parameters
-    
-    Stores parameters related to the stations output.  These parameters are 
+
+    Stores parameters related to the stations output.  These parameters are
     input through the file indicated by the SPOSNAM variable.
-    
+
     Returns:
         d: ROMS parameter dictionary.  Keys correspond to ROMS variables.
-    """    
-    
+    """
+
     d = OrderedDict((
     # Logical flag to turn on writing station data
     ('Lstations', True),
@@ -945,9 +949,9 @@ def stations():
         'FLAG': [1, 1, 1],
         'X-POS': [195.9500, 195.0, 181.9],
         'Y-POS': [56.8636, 63.855, 56.597]
-    })           
+    })
     ))
     return d
-    
 
-    
+
+
