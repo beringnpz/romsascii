@@ -410,7 +410,7 @@ def bestnpz():
     ('TrefC'    ,15.0),       # Reference temperature degrees C
     ('TrefN'    , 5.0),       # Reference temperature degrees C
     ('TrefE'    , 5.0),       # Reference temperature degrees C
-    ('TrefJ'    , 10.),       # Reference temperature degrees C
+    # ('TrefJ'    , 10.),       # Reference temperature degrees C
     # Iron climatology
     ('Feinlo'   ,   2.0),     # inshore/surface (micromol Fe m-3 or nM)
     ('Feinhi'   ,   4.0),     # inshore/deep    (micromol Fe m-3 or nM)
@@ -419,12 +419,16 @@ def bestnpz():
     ('Feoffhi'  ,   2.0),     # offshore/deep    (micromol Fe m-3 or nM)
     ('Feoffh'   , 100.0),     # offshore isobath of transition (m)
     # Diapause
-    ('wNCrise'  ,  12.0),     # upward velocity (m/day), tuned not data
-    ('wNCsink'  ,  11.0),     # downward velocity (m/day), tuned not data
-    ('RiseStart',   0.0),     # Date NC begin to move upward (Day of Year)
-    ('RiseEnd'  ,  60.0),     # Date NC stop moving upward (Day of Year)
-    ('SinkStart', 155.0),     # Date NC begin to move downward (Day of Year)
-    ('SinkEnd'  , 366.0),     # Date NC stop moving downward (Day of Year)
+    ('wNCrise'    ,  12.0),   # upward velocity (m/day), tuned not data
+    ('wNCsink'    ,  11.0),   # downward velocity (m/day), tuned not data
+    ('RiseStart'  ,   0.0),   # Date NC begin to move upward (Day of Year)
+    ('RiseEnd'    ,  60.0),   # Date NC stop moving upward (Day of Year)
+    ('SinkStart'  , 155.0),   # Date NC begin to move downward (Day of Year)
+    ('SinkEnd'    , 366.0),   # Date NC stop moving downward (Day of Year)
+    ('RiseStartCM',   0.0),   # Date CM begin to move upward (Day of Year)
+    ('RiseEndCM'  ,   0.0),   # Date CM stop moving upward (Day of Year)
+    ('SinkStartCM',   0.0),   # Date CM begin to move downward (Day of Year)
+    ('SinkEndCM'  ,   0.0),   # Date CM stop moving downward (Day of Year)
     # Reminaralization and nitrification
     ('Pv0'      , 0.1),       # PON dicompositon at 0 deg C (d-1)
     ('PvT'      , 0.069),     # Temperature coefficient (deg C-1)
