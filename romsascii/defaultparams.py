@@ -307,8 +307,8 @@ def bestnpz():
     ('k_ext'    , 0.046),     # Extinction coefficient due to seawater (1/m)
     ('k_chl'    , 0.121),     # Extinction coefficient due to Phy. (1/m)
     ('k_extZ'   , 0),         # Cokelet light parameter, TODO: need to get value from Georgina
-    ('k_chlA'   , 0),         # Cokelet light parameter, TODO: need to get value from Georgina
-    ('k_chlB'   , 0),         # Cokelet light parameter, TODO: need to get value from Georgina
+    ('k_chlA'   , 0.1159),    # Cokelet light parameter, TODO: need to get value from Georgina
+    ('k_chlB'   , 0.2829),    # Cokelet light parameter, TODO: need to get value from Georgina
     ('k_chlC'   , 0),         # Cokelet light parameter, TODO: need to get value from Georgina
     ('a_frac'   , 0.58),      # TODO: what is this
     ('a_mu1'    , 0.35),      # TODO: what is this
@@ -333,17 +333,17 @@ def bestnpz():
     # Feeding preference
     ('fpPhSMZL' , 1.0),       # PhS->MZL  Feeding preference
     ('fpPhLMZL' , 0.2),       # PhL->MZL  Feeding preference
-    ('fpMZSMZL' , 0.0),       # PhS->Cop  Feeding preference
-    ('fpPhSCop' , 0.8),       # PhL->Cop  Feeding preference
-    ('fpPhLCop' , 0.7),       # MZL->Cop  Feeding preference
-    ('fpMZLCop' , 0.5),       # PhS->NCa  Feeding preference
-    ('fpPhSNCa' , 0.1),       # PhL->NCa  Feeding preference
-    ('fpPhLNCa' , 1.0),       # MZL->NCa  Feeding preference
-    ('fpMZLNCa' , 1.0),       # PhS->Eup  Feeding preference
+    ('fpPhSCop' , 0.8),       # PhS->Cop  Feeding preference
+    ('fpPhLCop' , 0.7),       # PhL->Cop  Feeding preference
+    ('fpMZLCop' , 0.5),       # MZL->Cop  Feeding preference
+    ('fpPhSNCa' , 0.1),       # PhS->NCa  Feeding preference
+    ('fpPhLNCa' , 1.0),       # PhL->NCa  Feeding preference
+    ('fpMZLNCa' , 1.0),       # MZL->NCa  Feeding preference
+    ('fpPhSEup' , 1.0),       # PhS->Eup  Feeding preference
     ('fpPhLEup' , 1.0),       # PhL->Eup  Feeding preference
     ('fpMZLEup' , 1.0),       # MZL->Eup  Feeding preference
     ('fpCopEup' , 0.2),       # Cop->Eup  Feeding preference
-    ('fpDetEup' , 0.0),       # Det->Eup  Feeding preference TODO: get value
+    ('fpDetEup' , 0.4),       # Det->Eup  Feeding preference TODO: get value
     ('fpDetEupO', 0.0),       # Det->EupO Feeding preference TODO: get value
     ('fpCopJel' , 1.0),       # Cop->Jel  Feeding preference
     ('fpNCaJel' , 1.0),       # NCa->Jel  Feeding preference
