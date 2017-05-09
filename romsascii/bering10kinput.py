@@ -19,6 +19,11 @@ Created on Wed May  4 15:21:46 2016
 """
 
 import os
+import shutil
+import re
+import glob
+import netCDF4 as nc
+import numpy as np
 
 # Fill in the appropriate initial, forcing, and boundary files based on either
 # CORE or CFSR data
