@@ -12,12 +12,13 @@ At the moment, this is tailored to the Bering 10K domain simulations.
 """
 
 from datetime import datetime, timedelta
-import os.path
+import os
 import subprocess
 from string import Template
 import copy
 import numpy as np
 import re
+import sys
 
 
 # Create file based on template but filling in values from d
@@ -339,6 +340,22 @@ def parseromslog(fname):
                         lasthis = tmp[-1]
     
     return {'cleanrun': cleanrun, 'blowup': blowup, 'laststep': step, 'lasthis':lasthis}
+    
+def reportstatus(logs):
+    """
+    Parse ROMS simulation log and report whether simulation completed.
+    
+    This function parses a ROMS simulation log file.  If that simulation
+    finished cleanly, it prints a simple statement to standard output.  
+    If not, it terminates execution of the calling program along with a
+    print to standard output.
+    """
+    s = parseromslog(logs['log'])
+    if s['cleanrun']:
+        print('Done: completed cleanly')
+    else:
+        print('Done: crashed, see {}'.format(logs['log']))
+        sys.exit()
 
 def runroms(d, outbase, logbase, mpivars, outdir='.', logdir='.', indir = '.',
             dryrun=False, bio={}, ice={}, stations={}, oceanfile='ocean.tmp.in', 

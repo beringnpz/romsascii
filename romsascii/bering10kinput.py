@@ -6,6 +6,10 @@ This module holds the locations of input files used in the Bering10K ROMS
 simulations, specifically, the files used for the Yukon-Kuskokwim Chinook 
 project simulations.
 
+It also provides some functions to create initialization files for the 
+BEST_NPZ and FEAST biological modules, and to parse history and restart 
+files under my typical simulation folder tree.
+
 This is extremely application- and computer-specific... not intended for 
 distribution.
 
@@ -122,4 +126,145 @@ def other_in(d, indir):
     d['IPARNAM'] = os.path.join(*(indir,'ipar','ice.in'))
     
     return d
+    
+def parsehis(simdir, shortname):
+    """
+    Parse restart counter from ROMS simulation history files
+    
+    This function finds the name of, and parses the simulation counter, 
+    from a series of ROMS history files.  It assumes that those files 
+    were using my standard naming scheme, where each file is named
+        simdir/Out/shortname_XX_his_YYYY.nc
+    where XX is the counter for number of restarts (assigned by 
+    runromsthroughblowup or similar), and YYYY is the counter for number 
+    of history files (assigned by ROMS.)
+    
+    Args:
+        simdir:     Name of simulation folder
+        shortname:  base name for history files
+    
+    Returns:
+        d:          dictionary object with the following keys:
+                    lastfile:   full path to last history file
+                    cnt:        restart counter of last file incremented 
+                                by 1 (i.e. count you would want to 
+                                restart with in runromsthroughblowup)
+      
+    """
+    allhis = sorted(glob.glob(os.path.join(simdir, "Out", shortname + "*his*.nc")))
+    his = allhis[-1]
+
+    pattern = shortname + "_(\d+)_his_(\d+)"
+    m = re.search(pattern, his)
+    cnt = int(m.group(1)) + 1
+    
+    return {'lastfile': his, 'count': cnt}
+    
+def parserst(simdir, shortname):
+    """
+    Parse restart counters from ROMS simulation restart files
+    
+    This function finds the name of, and parses the simulation counter, 
+    from a series of ROMS restart files.  It assumes that those files 
+    were using my standard naming scheme, where each file is named
+        simdir/Out/shortname_XX_rst.nc
+    where XX is the counter for number of restarts (assigned by 
+    runromsthroughblowup or similar.)
+    
+    Args:
+        simdir:     Name of simulation folder
+        shortname:  base name for history files
+    
+    Returns:
+        d:          dictionary object with the following keys:
+                    lastfile:   full path to last restart file
+                    cnt:        restart counter of last file incremented 
+                                by 1 (i.e. count you would want to 
+                                restart with in runromsthroughblowup)
+    """
+    allrst = sorted(glob.glob(os.path.join(simdir, "Out", shortname + "*rst*.nc")))
+    if len(allrst) == 0:
+        rst = []
+        cnt = 1
+    else:
+        rst = allrst[-1]
+
+        pattern = shortname + "_(\d+)_rst.nc"
+        m = re.search(pattern, rst)
+        cnt = int(m.group(1)) + 1
+    
+    return {'lastfile': rst, 'count': cnt}
+    
+def buildinifile(iniphys, ininpz):
+    """
+    Create ROMS initialization file for a BEST_NPZ simulation
+    
+    This function adds biological variables to a physics-only history 
+    file.  It is intended to make it easy to start a new BEST_NPZ 
+    simulation from any time point in a physics run that used the same 
+    ROMS domain.  The benthic variables (Ben and DetBen) are initialized
+    to specific values; all others are initialized to 0 (with the 
+    assumption that analytical initial conditions will be used.)
+    
+    Args:
+        iniphys:    full file name of physics-only history file
+        ininpz:     full file name of new BEST_NPZ initialization file
+    """
+    shutil.copyfile(iniphys, ininpz)
+
+    f = nc.Dataset(ininpz, 'r+')
+    sz = (f.dimensions['ocean_time'].size, f.dimensions['s_rho'].size,
+          f.dimensions['eta_rho'].size,    f.dimensions['xi_rho'].size)
+
+    vars2D = [['IcePhL', "Ice algae concentration",                "ice algae conc",         "mgC/m2"],
+              ['IceNO3', "Ice nitrate concentration",              "ice nitrate conc",       "mgC/m2"],
+              ['IceNH4', "Ice Ammonium concentration",             "ice Ammonium conc",      "mgC/m2"],
+              ['IceLog', "Logical Ice Counter",                    "Logical Ice Counter",    "unitless"],
+              ['DetBen', "benthic detritus concentration",         "benthic detritus",       "milligram carbon meter-2"],
+              ['Ben',    "benthos concentration",                  "benthos",                "milligram carbon meter-2"]
+             ]
+
+    vars3D = [['NO3',    "nitrate concentration",                  "nitrate",                "millimole nitrogen meter-3"],
+              ['NH4',    "ammonia concentration",                  "ammonia",                "millimole nitrogen meter-3"],
+              ['PhS',    "small phytoplankton concentration",      "small phytoplankton",    "milligram carbon meter-3"],
+              ['PhL',    "large phytoplankton concentration",      "large phytoplankton",    "milligram carbon meter-3"],
+              ['MZS',    "small microzooplankton concentration",   "small microzooplankton", "milligram carbon meter-3"],
+              ['MZL',    "large microzooplankton concentration",   "large microzooplankton", "milligram carbon meter-3"],
+              ['Cop',    "small coastal copepod concentration",    "copepod",                "milligram carbon meter-3"],
+              ['NCaS',   "neocalanus spp. concentration",          "neocalanus",             "milligram carbon meter-3"],
+              ['NCaO',   "Offshore neocalanus spp. concentration", "neocalanus",             "milligram carbon meter-3"],
+              ['EupS',   "euphausiid concentration",               "euphausiid",             "milligram carbon meter-3"],
+              ['EupO',   "Offshore euphausiid concentration",      "euphausiid",             "milligram carbon meter-3"],
+              ['Det',    "detritus concentration",                 "detritus",               "milligram carbon meter-3"],
+              ['DetF',   "Fast sinking detritus concentration",    "detritus",               "milligram carbon meter-3"],
+              ['Jel',    "Jellyfish concentration",                "jellyfish",              "milligram carbon meter-3"],
+              ['Iron',   "iron concentration",                     "iron",                   "micromol Fe m-3"]
+             ]
+
+    for var in vars2D:
+        dvar = f.createVariable(var[0], 'f4', ('ocean_time', 'eta_rho', 'xi_rho'), fill_value=1e37)
+        dvar.long_name = var[1]
+        dvar.units = var[3]
+        dvar.time = "ocean_time"
+        dvar.coordinates = "lon_rho lat_rho ocean_time"
+        dvar.field = '{}, scalar, series'.format(var[2])
+        if var[0] == 'Ben':
+            dvar[:] = np.ones([sz[i] for i in [0,2,3]])*8000.0;
+        elif var[0] == 'DetBen':
+            dvar[:] = np.ones([sz[i] for i in [0,2,3]])*500.0;
+        else:
+            dvar[:] = np.zeros([sz[i] for i in [0,2,3]])
+
+    for var in vars3D:
+        dvar = f.createVariable(var[0], 'f4', ('ocean_time', 's_rho', 'eta_rho', 'xi_rho'), fill_value=1e37)
+        dvar.long_name = var[1]
+        dvar.units = var[3]
+        dvar.time = "ocean_time"
+        dvar.coordinates = "lon_rho lat_rho s_rho ocean_time"
+        dvar.field = '{}, scalar, series'.format(var[2])
+        dvar[:] = np.zeros(sz)
+
+    f.close()
+    
+
 
