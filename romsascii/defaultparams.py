@@ -477,17 +477,16 @@ def bestnpz():
     # Activate writing of biological tracers into history file
     ('Hout', OrderedDict((
         ('idTvar'    , 15*[True] + [True]), # State variables
-        ('idTSvar'   , 16*[True]),          # STATIONARY
-        ('idTS2var'  , 8*[True]),           # STATIONARY2
-        ('idPT3var'  , 10*[True]),          # PROD3
-        ('idPT2var'  , 3*[True]),           # PROD2
         ('idBvar'    , 3*[True]),           # BENTHIC
         ('idIceBvar' , 4*[True]),           # ICE_BIO
         ('idIcePhL'  , True),
         ('idIceNO3'  , True),
         ('idIceNH4'  , True),
         ('idIceLog'  , True),
-        ('idTBFvar'  , True)                # BIOFLUX
+        ('idTSvar'   , 102*[False]),        # STATIONARY
+        ('idTS2var'  , 1*[False]),          # STATIONARY2
+        ('idPT3var'  , 10*[False]),         # PROD3
+        ('idPT2var'  , 3*[False])           # PROD2
         )))
     ))
     return d
