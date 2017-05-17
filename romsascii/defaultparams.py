@@ -936,12 +936,12 @@ def stations():
         ('idWfr'   , True),
         ('idS0mk'  , True),
         ('idT0mk'  , True),
-        ('idTSvar', 14*[True]),      # Stationary, Biology
-        ('idTS2var', 8*[True]),
-        ('idPT3var', 10*[True]),     # PROD3
-        ('idPT2var', 3*[True]),      # PROD2
-        ('idBvar', [True, True]),    # Benthic variables
-        ('idIcePhL', True),          # Ice Biology variables
+        ('idTSvar', 14*[False]),      # 3D Stationary, Biology
+        ('idTS2var', 8*[False]),      # 2D Stationary, Biology
+        ('idPT3var', 10*[False]),     # PROD3
+        ('idPT2var', 3*[False]),      # PROD2
+        ('idBvar', [True, True]),     # Benthic variables
+        ('idIcePhL', True),           # Ice Biology variables
         ('idIceNO3', True),
         ('idIceNH4', True),
         ('idBott', 16*[False])       # exposed sediment layer properties
