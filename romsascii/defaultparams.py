@@ -483,7 +483,7 @@ def bestnpz():
         ('idIceNO3'  , True),
         ('idIceNH4'  , True),
         ('idIceLog'  , True),
-        ('idTSvar'   , 102*[False]),        # STATIONARY
+        ('idTSvar'   , 107*[False]),        # STATIONARY
         ('idTS2var'  , 1*[False]),          # STATIONARY2
         ('idPT3var'  , 10*[False]),         # PROD3
         ('idPT2var'  , 3*[False])           # PROD2
@@ -936,8 +936,8 @@ def stations():
         ('idWfr'   , True),
         ('idS0mk'  , True),
         ('idT0mk'  , True),
-        ('idTSvar', 14*[False]),      # 3D Stationary, Biology
-        ('idTS2var', 8*[False]),      # 2D Stationary, Biology
+        ('idTSvar', 107*[False]),     # 3D Stationary, Biology
+        ('idTS2var', 1*[False]),      # 2D Stationary, Biology
         ('idPT3var', 10*[False]),     # PROD3
         ('idPT2var', 3*[False]),      # PROD2
         ('idBvar', [True, True]),     # Benthic variables
