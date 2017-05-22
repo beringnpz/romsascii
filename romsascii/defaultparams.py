@@ -306,12 +306,8 @@ def bestnpz():
     ('PARfrac'  , 0.5),       # Fraction of irradiance that is photosynthetically available (PAR)
     ('k_ext'    , 0.046),     # Extinction coefficient due to seawater (1/m)
     ('k_chl'    , 0.121),     # Extinction coefficient due to Phy. (1/m)
-    ('k_extZ'   , 0),         # Cokelet light parameter, TODO: need to get value from Georgina
     ('k_chlA'   , 0.1159),    # Cokelet light parameter, TODO: need to get value from Georgina
     ('k_chlB'   , 0.2829),    # Cokelet light parameter, TODO: need to get value from Georgina
-    ('k_chlC'   , 0),         # Cokelet light parameter, TODO: need to get value from Georgina
-    ('a_frac'   , 0.58),      # TODO: what is this
-    ('a_mu1'    , 0.35),      # TODO: what is this
     # Biological conversions
     ('xi'       , 0.0126),    # Nitrogen,Carbon ratio (mmol N / mg C)
     ('ccr'      , 65.0),      # Carbon,Chlorophyll ratio (mg C / mg Chl-a), small phyto
@@ -326,8 +322,8 @@ def bestnpz():
     ('k1PhL'    , 2.0),       # Half-saturation constant for NO3 limitation
     ('k2PhS'    , 0.5),       # Half-saturation constant for NH4 limitation
     ('k2PhL'    , 2.0),       # Half-saturation constant for NH4 limitation
-    ('FeCritPS' , 2.0),       # TODO: get description
-    ('FeCritPL' , 2.0),       # TODO: get description
+    ('FeCritPS' , 2.0),       # Threshold below which PhS is limited
+    ('FeCritPL' , 2.0),       # Threshold below which PhL is limited
     ('kfePhS'   , 0.3),       # half-saturation const. PhS (umol per m-3)
     ('kfePhL'   , 1.0),       # half-saturation const. PhL (umol per m-3)
     # Feeding preference
@@ -377,11 +373,12 @@ def bestnpz():
     # Phytoplankton senescence
     ('mPhS'     , 0.01),      # daily linear mortality rate (1/d)
     ('mPhL'     , 0.01),      # daily linear mortality rate (1/d)
+    ('mMZL'     , 0),         # linear mortality rate for MZL (1/d)
     # Predation closure
-    ('mpredMZL' , 0.010),     # Daily mortality for Large Microzoo. (1/d)
-    ('mpredCop' , 0.05),      # Daily mortality for Copepods (1/d)
-    ('mpredNCa' , 0.05),      # Daily mortality for Neocalanus (1/d)
-    ('mpredEup' , 0.05),      # Daily mortality for Euphausiids (1/d)
+    ('mpredMZL' , 0.010),     # Daily mortality for Large Microzoo. (1/d/mgC)
+    ('mpredCop' , 0.05),      # Daily mortality for Copepods (1/d/mgC)
+    ('mpredNCa' , 0.05),      # Daily mortality for Neocalanus (1/d/mgC)
+    ('mpredEup' , 0.05),      # Daily mortality for Euphausiids (1/d/mgC)
     ('mpredJel' , 0.006),
     # Sinking
     ('wPhS'     , 0.05),      # Sinking rate for Small Phytoplankton (m/d)
@@ -410,7 +407,6 @@ def bestnpz():
     ('TrefC'    ,15.0),       # Reference temperature degrees C
     ('TrefN'    , 5.0),       # Reference temperature degrees C
     ('TrefE'    , 5.0),       # Reference temperature degrees C
-    # ('TrefJ'    , 10.),       # Reference temperature degrees C
     # Iron climatology
     ('Feinlo'   ,   2.0),     # inshore/surface (micromol Fe m-3 or nM)
     ('Feinhi'   ,   4.0),     # inshore/deep    (micromol Fe m-3 or nM)
@@ -435,8 +431,6 @@ def bestnpz():
     ('Nitr0'    , 0.0107),
     ('ktntr'    , 0.002),
     ('KNH4Nit'  , 0.057),     # Half Sat Con mg N/m3/day 0.08d0
-    ('tI0'      , 0),         # Threshold for light limitation of nitrification (W m^-2) TODO: get value
-    ('KI'       , 0),         # Half saturation light intensity for nitrification (w m^-2) TODO: get value
     # Benthos
     ('iremin'   , 0.800),       # related to nitrification bflx TODO: define
     ('q10r'     , 1.5),         # Ben Q10 for feeding
@@ -488,6 +482,14 @@ def bestnpz():
         ('idPT3var'  , 10*[False]),         # PROD3
         ('idPT2var'  , 3*[False])           # PROD2
         )))
+    # Deprecated
+    # ('k_extZ'   , 0),         # Cokelet light parameter, TODO: need to get value from Georgina
+    # ('k_chlC'   , 0),         # Cokelet light parameter, TODO: need to get value from Georgina
+    # ('a_frac'   , 0.58),      # TODO: what is this
+    # ('a_mu1'    , 0.35),      # TODO: what is this
+    # ('TrefJ'    , 10.),       # Reference temperature degrees C
+    # ('tI0'      , 0),         # Threshold for light limitation of nitrification (W m^-2) TODO: get value
+    # ('KI'       , 0),         # Half saturation light intensity for nitrification (w m^-2) TODO: get value
     ))
     return d
 
@@ -936,7 +938,7 @@ def stations():
         ('idWfr'   , True),
         ('idS0mk'  , True),
         ('idT0mk'  , True),
-        ('idTSvar', 107*[False]),     # 3D Stationary, Biology
+        ('idTSvar', 118*[False]),     # 3D Stationary, Biology
         ('idTS2var', 1*[False]),      # 2D Stationary, Biology
         ('idPT3var', 10*[False]),     # PROD3
         ('idPT2var', 3*[False]),      # PROD2
