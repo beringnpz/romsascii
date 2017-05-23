@@ -477,7 +477,7 @@ def bestnpz():
         ('idIceNO3'  , True),
         ('idIceNH4'  , True),
         ('idIceLog'  , True),
-        ('idTSvar'   , 107*[False]),        # STATIONARY
+        ('idTSvar'   , 118*[False]),        # STATIONARY
         ('idTS2var'  , 1*[False]),          # STATIONARY2
         ('idPT3var'  , 10*[False]),         # PROD3
         ('idPT2var'  , 3*[False])           # PROD2
