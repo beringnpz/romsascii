@@ -308,6 +308,9 @@ def bestnpz():
     ('k_chl'    , 0.121),     # Extinction coefficient due to Phy. (1/m)
     ('k_chlA'   , 0.1159),    # Cokelet light parameter, TODO: need to get value from Georgina
     ('k_chlB'   , 0.2829),    # Cokelet light parameter, TODO: need to get value from Georgina
+    ('k_chlC'   , 0),         # Cokelet light parameter (swdk calc in pre_step3d), TODO: need to get value from Georgina
+    ('a_frac'   , 0.58),      # Jerlov water type light parameter (swdk calc in pre_step3d)
+    ('a_mu1'    , 0.35),      # Jerlov water type light parameter (swdk calc in pre_step3d)
     # Biological conversions
     ('xi'       , 0.0126),    # Nitrogen,Carbon ratio (mmol N / mg C)
     ('ccr'      , 65.0),      # Carbon,Chlorophyll ratio (mg C / mg Chl-a), small phyto
@@ -484,9 +487,6 @@ def bestnpz():
         )))
     # Deprecated
     # ('k_extZ'   , 0),         # Cokelet light parameter, TODO: need to get value from Georgina
-    # ('k_chlC'   , 0),         # Cokelet light parameter, TODO: need to get value from Georgina
-    # ('a_frac'   , 0.58),      # TODO: what is this
-    # ('a_mu1'    , 0.35),      # TODO: what is this
     # ('TrefJ'    , 10.),       # Reference temperature degrees C
     # ('tI0'      , 0),         # Threshold for light limitation of nitrification (W m^-2) TODO: get value
     # ('KI'       , 0),         # Half saturation light intensity for nitrification (w m^-2) TODO: get value
