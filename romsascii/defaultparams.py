@@ -434,6 +434,7 @@ def bestnpz():
     ('Nitr0'    , 0.0107),
     ('ktntr'    , 0.002),
     ('KNH4Nit'  , 0.057),     # Half Sat Con mg N/m3/day 0.08d0
+    ('ToptNtr'  , 20.0),      # Optimal temperature for nitrification (deg C)
     # Benthos
     ('iremin'   , 0.800),       # related to nitrification bflx TODO: define
     ('q10r'     , 1.5),         # Ben Q10 for feeding
