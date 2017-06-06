@@ -485,13 +485,13 @@ def bestnpz():
         ('idTS2var'  , 1*[False]),          # STATIONARY2
         ('idPT3var'  , 10*[False]),         # PROD3
         ('idPT2var'  , 3*[False])           # PROD2
-        )))
-    # Deprecated
-    # ('k_extZ'   , 0),         # Cokelet light parameter, TODO: need to get value from Georgina
-    # ('TrefJ'    , 10.),       # Reference temperature degrees C
-    # ('tI0'      , 0),         # Threshold for light limitation of nitrification (W m^-2) TODO: get value
-    # ('KI'       , 0),         # Half saturation light intensity for nitrification (w m^-2) TODO: get value
-    ))
+        ))
+    # Deprecated (but still parsed by ROMS)
+    ('k_extZ'   , 2.0),         # Cokelet light parameter, TODO: need to check value from Georgina
+    ('TrefJ'    , 10.0),        # Reference temperature degrees C
+    ('tI0'      , 0.0095),      # Threshold for light limitation of nitrification (W m^-2) TODO: check value
+    ('KI'       , 4.0),         # Half saturation light intensity for nitrification (w m^-2) TODO: check value
+    )))
     return d
 
 def feast(flag=False):
