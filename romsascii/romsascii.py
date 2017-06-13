@@ -489,7 +489,7 @@ def runroms(d, outbase, logbase, mpivars, outdir='.', logdir='.', indir = '.',
 
 def runromsthroughblowup(d, outbase, timevars, mpivars, logdir='.', outdir='.',
                          indir='.', faststep=[], slowstep=[], count=1, bio={}, 
-                         ice={}, stations={}):
+                         ice={}, stations={}, dryrun=False):
     """
     Run a ROMS simulation, attempting to get past blowups
     
@@ -605,6 +605,13 @@ def runromsthroughblowup(d, outbase, timevars, mpivars, logdir='.', outdir='.',
     oceantmp = 'ocean.tmp{:02d}.in'.format(count)
     
     print('Running {} (Init)'.format(outbasetmp))
+    if dryrun:
+        s = runroms(d, outbasetmp, logbasetmp, mpivars,
+                outdir=outdir, logdir=logdir, indir=indir,
+                oceanfile=oceantmp, dryrun=True)
+        cleanexit = True
+        return cleanexit
+    
     s = runroms(d, outbasetmp, logbasetmp, mpivars,
                 outdir=outdir, logdir=logdir, indir=indir,
                 oceanfile=oceantmp)
@@ -689,12 +696,13 @@ def runromsthroughblowup(d, outbase, timevars, mpivars, logdir='.', outdir='.',
         oceantmp = 'ocean.tmp{:02d}.in'.format(count)
         
         print('Running {} (fast)'.format(outbasetmp))
+
         s = runroms(d, outbasetmp, logbasetmp, mpivars,
                 outdir=outdir, logdir=logdir, indir=indir,
                 oceanfile=oceantmp)
-        
+    
         # Parse this run's log to check for another blowup
-        
+    
         r = parseromslog(s['log'])
         if not r['cleanrun']:
             print('ROMS crashed')
