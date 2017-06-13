@@ -97,17 +97,25 @@ def list2str(tmp):
             all(isinstance(x, int)   for x in tmp)):
         return tmp
     
-    consec = consecutive(tmp, stepsize=123456789) # turning off consec TODO change this to better code
+    consec = consecutive(tmp, stepsize=0)
+
+    consecstr = [None]*len(consec)
+
+    for ii in range(0, len(consec)):
+        n = len(consec[ii]) 
+        if isinstance(tmp[0], float):
+            sampleval = float2str(consec[ii][0])
+        elif isinstance(tmp[0], bool): 
+            sampleval = bool2str(consec[ii][0])
+        else:
+            sampleval = consec[ii][0]
     
-    if isinstance(tmp[0], float):
-        y = map(lambda x: '{num}*{val}'.format(num=len(x),val=float2str(x[0])), consec)
-    elif isinstance(tmp[0], bool):
-        y = map(lambda x: '{num}*{val}'.format(num=len(x),val=bool2str(x[0])), consec)
-    else:
-        y = map(lambda x: '{num}*{val}'.format(num=len(x),val=x[0]), consec)
-    y = ' '.join(y)
-    y = re.sub('\s1\*', ' ', y)
-    y = re.sub('^1\*', '', y)
+        if n > 1:
+            consecstr[ii] = '{num}*{val}'.format(num=n,val=sampleval)
+        else:
+            consecstr[ii] = '{val}'.format(val=sampleval)
+        
+    y = ' '.join(consecstr)
     return y
 
 def checkforstring(x, prefix=''):
