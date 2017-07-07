@@ -947,6 +947,7 @@ def stations():
         ('idIcePhL', True),           # Ice Biology variables
         ('idIceNO3', True),
         ('idIceNH4', True),
+        ('idIceLog', True),
         ('idBott', 16*[False])       # exposed sediment layer properties
         ))),
     ('NSTATION', 3),
