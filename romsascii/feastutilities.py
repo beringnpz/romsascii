@@ -18,6 +18,7 @@ import glob
 import shutil
 import os
 import subprocess
+from datetime import datetime, timedelta
 
 
 def findclosesttime(folder, targetdate):
@@ -321,7 +322,7 @@ def buildfeastbry(oldbry, newbry):
 
     f.close()
     
-def buildfeastini(years, hisfiles, inibase):
+def buildfeastini(years, hisfiles, inibase, grdname, runr=True):
     """
     Creates initialization file for a FEAST simulation
     
@@ -345,6 +346,10 @@ def buildfeastini(years, hisfiles, inibase):
         inibase:    base name for new FEAST initialization name (created 
                     files will be named inibase_YYYY.nc, where YYYY 
                     corresponds to the requested years.)
+        grdname:    name of grid file
+        runr:       logical scalar, true to run the addFishToIni.r script 
+                    (you can turn this off if you want to pair mismatched 
+                    year data, i.e. add 2004 fish data to a 2037 file)   
     """
     for yr in years:
         
@@ -374,15 +379,17 @@ def buildfeastini(years, hisfiles, inibase):
 
     # Use Kerim's R script to add in all the appropriate fish data
 
-    print('All years\n  Adding fish data to dye variables')
+    if runr:
 
-    env = os.environ.copy();
-    env['LD_LIBRARY_PATH'] = ':'.join([env['LD_LIBRARY_PATH'], '/home/aydink/lib'])
-    env['NETCDFHOME'] = '/home/aydink'
+        print('All years\n  Adding fish data to dye variables')
 
-    cmd3 = ['/home/aydink/bin/Rscript', 'addFishToIni.r', ocean['GRDNAME'], inibase] + [str(x) for x in years]
-     
-    subprocess.call(cmd3, env=env)
+        env = os.environ.copy();
+        env['LD_LIBRARY_PATH'] = ':'.join([env['LD_LIBRARY_PATH'], '/home/aydink/lib'])
+        env['NETCDFHOME'] = '/home/aydink'
+
+        cmd3 = ['/home/aydink/bin/Rscript', 'addFishToIni.r', grdname, inibase] + [str(x) for x in years]
+
+        subprocess.call(cmd3, env=env)
     
     
         
