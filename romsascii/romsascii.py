@@ -97,7 +97,7 @@ def list2str(tmp):
             all(isinstance(x, int)   for x in tmp)):
         return tmp
     
-    consec = consecutive(tmp, stepsize=0)
+    consec = consecutive(tmp, stepsize=-99999)
 
     consecstr = [None]*len(consec)
 
