@@ -21,8 +21,6 @@ import re
 import sys
 
 
-# Create file based on template but filling in values from d
-
 def filltemplate(d, templatefile, outfile):
     """
     Fills in ocean.in template file with dictionary values
@@ -220,6 +218,32 @@ def writeromsascii(d, fname, filetype='phys'):
                 
 
 def formatline(kw, val, filetype='phys'):
+    """
+    Format an parameter definition line for a ROMS file
+    
+    ROMS input parameter statements follow the format of
+      KEY1 =  VALUE1
+      KEY2 == VALUE2
+    The single equals sign indicates singular assingment (i.e. no nested 
+    grid dependency), while the double equals indicates that the 
+    parameter expects Ngrids replicates of the parameter values, one per 
+    grid.  
+    
+    This function formats a parameter-assignment line, comparing the 
+    input key to a saved collection of variables that I know expect 
+    singular assignment.  Any keys not in that collection will be 
+    formatted with a plural assignment.
+    
+    Args:
+        kw:         ROMS input variable name
+        val:        stringified version of ROMS variable value(s)
+    
+    Optional keyword arguments:
+        filetype:   type of file (used to determine which parameters need
+                    = vs ==).  Can be 'phys', 'bio', 'ice', or 'stations'.  
+                    If not included, default is 'phys'.
+    
+    """
     if filetype == 'phys':
         singular = ['TITLE', 'MyAppCPP', 'VARNAME', 'Nbed', 'NAT', 'NPT', 'NCS',
                     'NNS', 'ERstr', 'ERend', 'Nouter', 'Ninner', 'Nintervals',
@@ -485,23 +509,58 @@ def runroms(d, outbase, logbase, mpivars, outdir='.', logdir='.', indir = '.',
             subprocess.run(cmd, stdout=fout, stderr=ferr)
     
     return {'log': logfile, 'err': errfile}
-
-
-def runromsthroughblowup(d, outbase, timevars, mpivars, logdir='.', outdir='.',
-                         indir='.', faststep=[], slowstep=[], count=1, bio={}, 
-                         ice={}, stations={}, dryrun=False):
+    
+def parserst(filebase):
     """
-    Run a ROMS simulation, attempting to get past blowups
+    Parse restart counters from ROMS simulation restart files
+    
+    This function finds the name of, and parses the simulation counter, 
+    from a series of ROMS restart files.  It assumes that those files 
+    were using the naming scheme from runromssmart, i.e.
+        filebase_XX_rst.nc
+    where XX is the counter for number of restarts.
+    
+    Args:
+        filebase:   base name for restart files (can include full path)
+    
+    Returns:
+        d:          dictionary object with the following keys:
+                    lastfile:   full path to last restart file
+                    cnt:        restart counter of last file incremented 
+                                by 1 (i.e. count you would want to 
+                                restart with in runromssmart)
+    """
+    allrst = sorted(glob.glob(os.path.join(filebase + "*rst*.nc")))
+    if len(allrst) == 0:
+        rst = []
+        cnt = 1
+    else:
+        rst = allrst[-1]
+
+        pattern = shortname + "_(\d+)_rst.nc"
+        m = re.search(pattern, rst)
+        cnt = int(m.group(1)) + 1
+    
+    return {'lastfile': rst, 'count': cnt}
+
+
+def runromssmart(d, outbase, timevars, mpivars, logdir='.', outdir='.',
+                indir='.', faststep=[], slowstep=[], count=1, bio={}, 
+                ice={}, stations={}, dryrun=False):
+    """
+    Run a ROMS simulation, attempting to deal with crashes
     
     This function runs the ROMS executable with the specified options and
-    inputs.  If the simulation blows up, it decreases the simulation step
-    size and runs for a month before returning to the original step size.
+    inputs.  Before running, it checks to see if a restart file for the 
+    simulation already exists, and if so, resumes from there. If the 
+    simulation blows up, it decreases the simulation step size and runs 
+    for a month before returning to the original step size.
     
     Args:
         d:              ROMS parameter dictionary
-        outbase:        string, base used for both output and log files
-                        (will be modified with counters indicating
-                        restarts)
+        outbase:        string, base name used for input, output, and log 
+                        files (will be modified with counters indicating
+                        restarts where appropriate)
         timevars:       dictionary with desired time-related variables
                         datestart:  datetime object, date of simulation
                                     start (date of step = 0, actual start
@@ -533,17 +592,18 @@ def runromsthroughblowup(d, outbase, timevars, mpivars, logdir='.', outdir='.',
                         default = current directory
         outdir:         path to folder where output files will be placed
                         default = current directory
-        indir:          path to folder where any dynamically-generate input
-                        files are saved
+        indir:          path to folder where any dynamically-generated 
+                        input files are saved
         faststep:       timedelta object, simulation time step for
-                        initial run.  If empty, the value from d['DT'] will be
-                        used.
+                        initial run.  If empty, the value from d['DT'] 
+                        will be used.
                         default = []
         slowstep:       timedelta object, smaller time step used to get
                         past blowups.  If empty, will be half the faststep
                         value.
                         default = []
-        count:          index assigned to initial run.
+        count:          index assigned to initial run, assuming no 
+                        restart files are found
                         default = 1
         bio:            dictionary of biological parameters.  If not empty, the
                         BPARNAM file will be dynamically generated based on the
@@ -557,8 +617,6 @@ def runromsthroughblowup(d, outbase, timevars, mpivars, logdir='.', outdir='.',
                         SPOSNAM file will be dynamically generated based on the 
                         values in this dictionary.
         
-    
-    
     """
     
     #---------------------
@@ -583,26 +641,33 @@ def runromsthroughblowup(d, outbase, timevars, mpivars, logdir='.', outdir='.',
         os.makedirs(indir)
     
     if bio:
-        bparfullfile =  os.path.join(*(indir, 'bio.tmp.in'))
+        bparfullfile =  os.path.join(*(indir, '{}.bio.in'.format(outbase)))
         writeromsascii(bio, bparfullfile, filetype='bio')
         d['BPARNAM'] = bparfullfile
         
     if ice:  
-        iparfullfile =  os.path.join(*(indir, 'ice.tmp.in'))
+        iparfullfile =  os.path.join(*(indir, '{}.ice.in'.format(outbase)))
         writeromsascii(ice, iparfullfile, filetype='ice')
         d['IPARNAM'] = iparfullfile
         
     if stations:
-        sposfullfile =  os.path.join(*(indir, 'stations.tmp.in'))
+        sposfullfile =  os.path.join(*(indir, '{}.stations.in'.format(outbase)))
         writeromsascii(stations, sposfullfile, filetype='stations')
         d['SPOSNAM'] = sposfullfile
         
+    # Check for restart files
+    
+    rstinfo = parserst(os.path.join(*(outdir, outbase)))
+    if rstinfo.lastfile:
+        count = rstinfo['count']
+        ocean['ININAME'] = rstinfo['lastfile']
+        ocean['NRREC'] = -1
     
     # Run ROMS
     
     outbasetmp = '{}_{:02d}'.format(outbase, count)
     logbasetmp = '{}_{:02d}_fast'.format(outbase, count)
-    oceantmp = 'ocean.tmp{:02d}.in'.format(count)
+    oceantmp = '{}_{:02d}.ocean.in'.format(outbase, count)
     
     print('Running {} (Init)'.format(outbasetmp))
     if dryrun:
