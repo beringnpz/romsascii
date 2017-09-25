@@ -19,6 +19,7 @@ import copy
 import numpy as np
 import re
 import sys
+import glob
 
 
 def filltemplate(d, templatefile, outfile):
@@ -537,7 +538,7 @@ def parserst(filebase):
     else:
         rst = allrst[-1]
 
-        pattern = shortname + "_(\d+)_rst.nc"
+        pattern = filebase + "_(\d+)_rst.nc"
         m = re.search(pattern, rst)
         cnt = int(m.group(1)) + 1
     
@@ -658,10 +659,10 @@ def runromssmart(d, outbase, timevars, mpivars, logdir='.', outdir='.',
     # Check for restart files
     
     rstinfo = parserst(os.path.join(*(outdir, outbase)))
-    if rstinfo.lastfile:
+    if rstinfo['lastfile']:
         count = rstinfo['count']
-        ocean['ININAME'] = rstinfo['lastfile']
-        ocean['NRREC'] = -1
+        d['ININAME'] = rstinfo['lastfile']
+        d['NRREC'] = -1
     
     # Run ROMS
     
@@ -669,7 +670,7 @@ def runromssmart(d, outbase, timevars, mpivars, logdir='.', outdir='.',
     logbasetmp = '{}_{:02d}_fast'.format(outbase, count)
     oceantmp = '{}_{:02d}.ocean.in'.format(outbase, count)
     
-    print('Running {} (Init)'.format(outbasetmp))
+    print('Running {}'.format(outbasetmp))
     if dryrun:
         s = runroms(d, outbasetmp, logbasetmp, mpivars,
                 outdir=outdir, logdir=logdir, indir=indir,
@@ -760,7 +761,7 @@ def runromssmart(d, outbase, timevars, mpivars, logdir='.', outdir='.',
         logbasetmp = '{}_{:02d}_fast'.format(outbase, count)
         oceantmp = 'ocean.tmp{:02d}.in'.format(count)
         
-        print('Running {} (fast)'.format(outbasetmp))
+        print('Running {}'.format(outbasetmp))
 
         s = runroms(d, outbasetmp, logbasetmp, mpivars,
                 outdir=outdir, logdir=logdir, indir=indir,
