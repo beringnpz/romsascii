@@ -13,7 +13,7 @@ from collections import OrderedDict
 
 # The default Bering 10K ocean.in (ROMS circa 2009) dictionary
 # Most parameters are set to the values we use for Bering  10K runs.  However,
-# all file names are set to defaults and need to be changed.
+# all file names are set to defaults.
 def ocean():
     """
     Populate dictionary with default ocean.in ROMS parameters
