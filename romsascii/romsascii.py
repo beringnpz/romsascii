@@ -368,25 +368,81 @@ def reportstatus(logs):
         print('Done: crashed, see {}'.format(logs['log']))
         sys.exit()
 
-def runroms(d, outbase, logbase, mpivars, outdir='.', logdir='.', indir = '.',
-            dryrun=False, bio={}, ice={}, stations={}, oceanfile='ocean.tmp.in', 
-            bparfile='bio.tmp.in', iparfile='ice.tmp.in', sposfile='stations.tmp.in'):
+def runroms(rundata, mpiexe="mpirun", romsexe="oceanM", hostfile="", 
+            dryrun=False):
     """
-    Run a ROMS simulation
+    Run a ROMS simulation (without a system scheduler)
     
     This function runs the ROMS executable with the specified options and
-    inputs
+    inputs, assuming mpirun can be called directly on the computer system 
+    (i.e. no system scheduler for batch job submission)
     
+    Args:
+        rundata:        dictionary of ROMS simulation info (see output 
+                        from createinputfiles)
+    
+    Optional keyword arguments:
+    
+        mpiexe:         location of mpirun executable
+                        default = 'mpirun'
+        romsexe:        location of ROMS compiled executable
+                        default = 'oceanM'
+        hostfile:       path to host file (telling mpirun which 
+                        processors to use
+        dryrun:         true to run in dry run mode (prints mpirun 
+                        subprocess command to screen), false to actually 
+                        run it
+                        default = False
+    
+    Returns:
+        dictionary object with the following keys:
+        log:            path to log file with ROMS standard output
+        err:            path to log file with ROMS standard error
+    """
+    
+    # Set up main command
+    
+    if hostfile:
+        cmd = [mpiexe, 
+               '-np', str(rundata['np'])
+               '--hostfile', hostfile,
+               romsexe, 
+               rundata['in']
+           ]
+    else:
+        cmd = [mpiexe, 
+               '-np', str(rundata['np'])
+               romsexe, 
+               rundata['in']
+           ]
+                  
+    # Run ROMS via subprocess call (or print equivalent command to screen):
+    
+    if dryrun:
+        print('{} >{} 2>{}'.format(' '.join(cmd), rundata['out'], rundata['err']))
+    else:
+        with open(rundata['out'], 'w') as fout, open(rundata['err'], 'w') as ferr:
+            subprocess.run(cmd, stdout=fout, stderr=ferr)
+    
+    return {'log': logfile, 'err': errfile}
+    
+def createinputfiles(d, outbase, logbase, outdir='.', logdir='.', 
+        indir = '.', bio={}, ice={}, stations={}, 
+        oceanfile='ocean.tmp.in', bparfile='bio.tmp.in', 
+        iparfile='ice.tmp.in', sposfile='stations.tmp.in'):
+    """
+    Create ascii input files for a ROMS simulation
+        
+    This function creates all the files necessary to run a ROMS 
+    simulation.  At minimum this includes the standard input file (i.e.
+    ocean.in).  It will also create the appropriate biology, ice, and 
+    stations files as needed, and set up names for files to catch 
+    standard output and standard error.
+        
     Args:
         d:              ROMS parameter dictionary
         outbase:        string, base for all output file names
         logbase:        string, base for all log file names
-        mpivars:        dictionary with running options
-                        mpiexe:     path to mpirun executable
-                        np:         number of processors to use
-                        hostfile:   host file name specifying cores to
-                                    use
-                        romsexe:    path to roms executable
     
     Optional keyword arguments:
         outdir:         path to folder where output files will be placed
@@ -394,48 +450,46 @@ def runroms(d, outbase, logbase, mpivars, outdir='.', logdir='.', indir = '.',
         logdir:         path to folder where log files (standard output
                         and standard error from ROMS) will be placed
                         default = current directory
-        indir:          path to folder where any dynamically-generate input
-                        files are saved
+        indir:          path to folder where any dynamically-generated 
+                        input files are saved
                         default = current directory
-        dryrun:         boolean, if true, the system command is simply printed
-                        to screen rather than being run
-                        default = False
-        bio:            dictionary of biological parameters.  If not empty, the
-                        BPARNAM file will be dynamically generated based on the
-                        values in this dictionary.
+        bio:            dictionary of biological parameters.  If not 
+                        empty, the BPARNAM file will be dynamically 
+                        generated based on the values in this dictionary.
                         default = {}
         ice:            dictionary of ice parameters.  If not empty, the 
-                        IPARNAM file will be dynamically generated based on the 
-                        values in this dictionary.
+                        IPARNAM file will be dynamically generated based 
+                        on the values in this dictionary.
                         default = {}
-        stations:       dictionary of station parameters.  If not empty, the 
-                        SPOSNAM file will be dynamically generated based on the 
-                        values in this dictionary.
+        stations:       dictionary of station parameters.  If not empty, 
+                        the SPOSNAM file will be dynamically generated 
+                        based on the values in this dictionary.
                         default = {}
         oceanfile:      filename for ROMS standard input file
                         default = 'ocean.tmp.in'
-        bparfile:       filename for biological parameter file (if bio passed
-                        as input)
+        bparfile:       filename for dynamically-generated biological 
+                        parameter file (if bio passed as input)
                         default = 'bio.tmp.in'
-        iparfile:       filename for ice parameter file (if ice passed as 
-                        input)
+        iparfile:       filename for dynamically-generated ice parameter 
+                        file (if ice passed as input)
                         default = 'ice.tmp.in'
-        sposfile:       filename for stations parameter file (if stations 
-                        passed as input)
+        sposfile:       filename for dynamically-generated stations 
+                        parameter file (if stations passed as input)
                         default = 'stations.tmp.in'
-    
-    
+        
     Returns:
         dictionary object with the following keys:
-                        log:        path to log file with ROMS standard output
-                        err:        path to log file with ROMS standard error
+        in:             path to ROMS standard input file
+        out:            path to ROMS standard output file
+        err:            path to ROMS standard error file
+        np:             number of processors required to run this 
+                        simulation in parallel
+        
     """
-    
     # Set output file names
     
     if not os.path.exists(outdir):
         os.makedirs(outdir)
-    
     
     d['RSTNAME'] = os.path.join(*(outdir, '{}_rst.nc'.format(outbase)))
     d['HISNAME'] = os.path.join(*(outdir, '{}_his.nc'.format(outbase)))
@@ -473,21 +527,15 @@ def runroms(d, outbase, logbase, mpivars, outdir='.', logdir='.', indir = '.',
     
     logfile = os.path.join(*(logdir, 'out_{}.txt'.format(logbase)))
     errfile = os.path.join(*(logdir, 'err_{}.txt'.format(logbase)))
+        
+    # Return info necessary to run this ROMS simulation
     
-    # Run ROMS
+    rundata['in'] = oceanfullfile
+    rundata['out'] = logfile
+    rundata['err'] = errfile
+    rundata['np'] = ocean['NtileI'] * ocean['NtileJ']
     
-    cmd = [mpivars['mpiexe'],
-               '-np', str(mpivars['np']),
-               '--hostfile', mpivars['hostfile'],
-               mpivars['romsexe'],
-               oceanfullfile]
-    if dryrun:
-        print('{} >{} 2>{}'.format(' '.join(cmd), logfile, errfile))
-    else:
-        with open(logfile, 'w') as fout, open(errfile, 'w') as ferr:
-            subprocess.run(cmd, stdout=fout, stderr=ferr)
-    
-    return {'log': logfile, 'err': errfile}
+    return rundata
     
 def parserst(filebase):
     """
@@ -560,7 +608,6 @@ def runromssmart(d, outbase, timevars, mpivars, logdir='.', outdir='.',
                                     average file creation
         mpivars:        dictionary with running options
                         mpiexe:     path to mpirun executable
-                        np:         number of processors to use
                         hostfile:   host file name specifying cores to
                                     use
                         romsexe:    path to roms executable
@@ -648,18 +695,18 @@ def runromssmart(d, outbase, timevars, mpivars, logdir='.', outdir='.',
     logbasetmp = '{}_{:02d}_fast'.format(outbase, count)
     oceantmp = '{}_{:02d}.ocean.in'.format(outbase, count)
     
+    rundata = createinputfiles(d, outbasetmp, logbasetmp, 
+                               outdir=outdir, logdir=logdir, 
+                               indir=indir, oceanfile=oceantmp)
+    
     print('Running {}'.format(outbasetmp))
     if dryrun:
-        s = runroms(d, outbasetmp, logbasetmp, mpivars,
-                outdir=outdir, logdir=logdir, indir=indir,
-                oceanfile=oceantmp, dryrun=True)
+        s = runroms(rundata, **mpivars, dryrun=True)
         cleanexit = True
         return cleanexit
-    
-    s = runroms(d, outbasetmp, logbasetmp, mpivars,
-                outdir=outdir, logdir=logdir, indir=indir,
-                oceanfile=oceantmp)
-    
+        
+    s = runroms(rundata, **mpivars)
+
     # Parse the log file to make sure ROMS ran cleanly, and to check for a
     # blowup
     
@@ -706,10 +753,12 @@ def runromssmart(d, outbase, timevars, mpivars, logdir='.', outdir='.',
         logbasetmp = '{}_{:02d}_slow'.format(outbase, count)
         oceantmp = 'ocean.tmp{:02d}.in'.format(count)
         
-        print('Running {} (slow)'.format(outbasetmp))
-        s = runroms(d, outbasetmp, logbasetmp, mpivars,
-                outdir=outdir, logdir=logdir, indir=indir,
-                oceanfile=oceantmp)
+        rundata = createinputfiles(d, outbasetmp, logbasetmp, 
+                                   outdir=outdir, logdir=logdir, 
+                                   indir=indir, oceanfile=oceantmp)
+    
+        print('Running {} (slow)'.format(outbasetmp))        
+        s = runroms(rundata, **mpivars)
         
         # Parse this run's log to make sure it finished cleanly
         
@@ -739,11 +788,12 @@ def runromssmart(d, outbase, timevars, mpivars, logdir='.', outdir='.',
         logbasetmp = '{}_{:02d}_fast'.format(outbase, count)
         oceantmp = 'ocean.tmp{:02d}.in'.format(count)
         
-        print('Running {}'.format(outbasetmp))
-
-        s = runroms(d, outbasetmp, logbasetmp, mpivars,
-                outdir=outdir, logdir=logdir, indir=indir,
-                oceanfile=oceantmp)
+        rundata = createinputfiles(d, outbasetmp, logbasetmp, 
+                                   outdir=outdir, logdir=logdir, 
+                                   indir=indir, oceanfile=oceantmp)
+    
+        print('Running {}'.format(outbasetmp))        
+        s = runroms(rundata, **mpivars)
     
         # Parse this run's log to check for another blowup
     
