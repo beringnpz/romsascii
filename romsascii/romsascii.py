@@ -21,28 +21,6 @@ import re
 import sys
 import glob
 
-
-def filltemplate(d, templatefile, outfile):
-    """
-    Fills in ocean.in template file with dictionary values
-    
-    This function fills in an ocean.in template file.  The template file
-    should have variable placeholders (e.g $var) wherever d['var'] will
-    be filled in.
-    
-    Args:
-        d:              ROMS parameter dictionary
-        templatefile:   template file name
-        outfile:        name of output file to be created
-    
-    """
-    
-    with open(templatefile, 'r') as fin:
-        with open(outfile, 'w') as fout:
-            src = Template( fin.read() )
-            result = src.substitute(d)
-            fout.write(result)
-
 def bool2str(x):
     """
     Formats input boolean as string 'T' or 'F'
@@ -715,7 +693,7 @@ def runromssmart(d, outbase, timevars, mpivars, logdir='.', outdir='.',
         # variables to use this and the slow timestep
         
         dateblewup = timevars['datestart'] + timedelta(seconds=r['laststep']*faststep.total_seconds())
-        newend = dateblewup + timedelta(days=30)
+        newend = max([dateblewup + timedelta(days=30), timevars['dateend']])
         
         filltimevars(d, slowstep, timevars['datestart'], newend,
                      timevars['tref'], dthis=timevars['dthis'], dtavg=timevars['dtavg'],
