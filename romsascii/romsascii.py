@@ -352,7 +352,7 @@ def parseromslog(fname):
     
     return {'cleanrun': cleanrun, 'blowup': blowup, 'laststep': step, 'lasthis':lasthis}
     
-def reportstatus(logs):
+def reportstatus(logoutfile):
     """
     Parse ROMS simulation log and report whether simulation completed.
     
@@ -361,11 +361,11 @@ def reportstatus(logs):
     If not, it terminates execution of the calling program along with a
     print to standard output.
     """
-    s = parseromslog(logs['log'])
+    s = parseromslog(logoutfile)
     if s['cleanrun']:
         print('Done: completed cleanly')
     else:
-        print('Done: crashed, see {}'.format(logs['log']))
+        print('Done: crashed, see {}'.format(logoutfile))
         sys.exit()
 
 def runroms(rundata, mpiexe="mpirun", romsexe="oceanM", hostfile="", 
@@ -404,14 +404,14 @@ def runroms(rundata, mpiexe="mpirun", romsexe="oceanM", hostfile="",
     
     if hostfile:
         cmd = [mpiexe, 
-               '-np', str(rundata['np'])
+               '-np', str(rundata['np']),
                '--hostfile', hostfile,
                romsexe, 
                rundata['in']
            ]
     else:
         cmd = [mpiexe, 
-               '-np', str(rundata['np'])
+               '-np', str(rundata['np']),
                romsexe, 
                rundata['in']
            ]
@@ -423,8 +423,8 @@ def runroms(rundata, mpiexe="mpirun", romsexe="oceanM", hostfile="",
     else:
         with open(rundata['out'], 'w') as fout, open(rundata['err'], 'w') as ferr:
             subprocess.run(cmd, stdout=fout, stderr=ferr)
-    
-    return {'log': logfile, 'err': errfile}
+            
+    return {'log': rundata['out'], 'err': rundata['err']}
     
 def createinputfiles(d, outbase, logbase, outdir='.', logdir='.', 
         indir = '.', bio={}, ice={}, stations={}, 
@@ -530,12 +530,8 @@ def createinputfiles(d, outbase, logbase, outdir='.', logdir='.',
         
     # Return info necessary to run this ROMS simulation
     
-    rundata['in'] = oceanfullfile
-    rundata['out'] = logfile
-    rundata['err'] = errfile
-    rundata['np'] = ocean['NtileI'] * ocean['NtileJ']
-    
-    return rundata
+    return {'in': oceanfullfile, 'out': logfile, 'err': errfile, 
+            'np': d['NtileI'] * d['NtileJ']}
     
 def parserst(filebase):
     """
@@ -642,6 +638,11 @@ def runromssmart(d, outbase, timevars, mpivars, logdir='.', outdir='.',
         stations:       dictionary of station parameters.  If not empty, the 
                         SPOSNAM file will be dynamically generated based on the 
                         values in this dictionary.
+                
+    Returns:
+        cleanexit:      logical scalar, True if ROMS exited the 
+                        simulation cleanly (this can include a blowup, as
+                        long as the code made it to "ROMS/TOMS Done")
         
     """
     
@@ -692,7 +693,7 @@ def runromssmart(d, outbase, timevars, mpivars, logdir='.', outdir='.',
     # Run ROMS
     
     outbasetmp = '{}_{:02d}'.format(outbase, count)
-    logbasetmp = '{}_{:02d}_fast'.format(outbase, count)
+    logbasetmp = '{}_{:02d}'.format(outbase, count)
     oceantmp = '{}_{:02d}.ocean.in'.format(outbase, count)
     
     rundata = createinputfiles(d, outbasetmp, logbasetmp, 
@@ -701,16 +702,16 @@ def runromssmart(d, outbase, timevars, mpivars, logdir='.', outdir='.',
     
     print('Running {}'.format(outbasetmp))
     if dryrun:
-        s = runroms(rundata, **mpivars, dryrun=True)
+        runroms(rundata, **mpivars, dryrun=True)
         cleanexit = True
         return cleanexit
         
-    s = runroms(rundata, **mpivars)
+    runroms(rundata, **mpivars)
 
     # Parse the log file to make sure ROMS ran cleanly, and to check for a
     # blowup
     
-    r = parseromslog(s['log'])
+    r = parseromslog(rundata['out'])
     
     cleanexit = True
     
@@ -758,11 +759,11 @@ def runromssmart(d, outbase, timevars, mpivars, logdir='.', outdir='.',
                                    indir=indir, oceanfile=oceantmp)
     
         print('Running {} (slow)'.format(outbasetmp))        
-        s = runroms(rundata, **mpivars)
+        runroms(rundata, **mpivars)
         
         # Parse this run's log to make sure it finished cleanly
         
-        r = parseromslog(s['log'])
+        r = parseromslog(rundata['out'])
         if not r['cleanrun']:
             print('ROMS crashed')
             cleanexit = False
@@ -785,7 +786,7 @@ def runromssmart(d, outbase, timevars, mpivars, logdir='.', outdir='.',
                      dtdefavg=timevars['dtdefavg'], dtrst=timevars['dtrst'])
         
         outbasetmp = '{}_{:02d}'.format(outbase, count)
-        logbasetmp = '{}_{:02d}_fast'.format(outbase, count)
+        logbasetmp = '{}_{:02d}'.format(outbase, count)
         oceantmp = 'ocean.tmp{:02d}.in'.format(count)
         
         rundata = createinputfiles(d, outbasetmp, logbasetmp, 
@@ -793,11 +794,11 @@ def runromssmart(d, outbase, timevars, mpivars, logdir='.', outdir='.',
                                    indir=indir, oceanfile=oceantmp)
     
         print('Running {}'.format(outbasetmp))        
-        s = runroms(rundata, **mpivars)
+        runroms(rundata, **mpivars)
     
         # Parse this run's log to check for another blowup
     
-        r = parseromslog(s['log'])
+        r = parseromslog(rundata['out'])
         if not r['cleanrun']:
             print('ROMS crashed')
             cleanexit = False
