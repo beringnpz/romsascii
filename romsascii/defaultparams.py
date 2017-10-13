@@ -14,7 +14,7 @@ from collections import OrderedDict
 # The default Bering 10K ocean.in (ROMS circa 2009) dictionary
 # Most parameters are set to the values we use for Bering  10K runs.  However,
 # all file names are set to defaults.
-def ocean():
+def ocean(nat=2,npt=167):
     """
     Populate dictionary with default ocean.in ROMS parameters
 
@@ -26,12 +26,16 @@ def ocean():
     passed in any order, that's not entirely true.  Certain restrictions (such
     as NtileI coming before NtileJ) exist. So this function returns an ordered
     dictionary to preserve the order of keys for writing later.
+    
+    Optional keyword arguments:
+        nat:    number of active tracers
+                default = 2
+        npt:    number of passive tracers
+                default = 167 (value for FEAST)
 
     Returns:
         d: ROMS parameter dictionary.  Keys correspond to ROMS variables.
     """
-    nat = 2
-    npt = 167
 
     d = OrderedDict((
         # Application title
