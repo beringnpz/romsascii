@@ -741,7 +741,7 @@ def runromssmart(d, outbase, timevars, mpivars, logdir='.', outdir='.',
         # variables to use this and the slow timestep
         
         dateblewup = timevars['datestart'] + timedelta(seconds=r['laststep']*faststep.total_seconds())
-        newend = max([dateblewup + timedelta(days=30), timevars['dateend']])
+        newend = min([dateblewup + timedelta(days=30), timevars['dateend']])
         
         filltimevars(d, slowstep, timevars['datestart'], newend,
                      timevars['tref'], dthis=timevars['dthis'], dtavg=timevars['dtavg'],
