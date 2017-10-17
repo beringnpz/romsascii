@@ -254,7 +254,7 @@ def ocean(nat=2,npt=167):
             'idSig22'  : True,
             'idS0mk'   : True,
             'idT0mk'   : True,
-            'inert'    : npt*[True],
+            'inert'    : max(npt,1)*[True],
             'idBott'   : [True, True, True, True, True, True, True, True, True, False, False, False, False, False, False, False]
         }),
         # Generic User parameters
