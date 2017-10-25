@@ -20,6 +20,7 @@ import numpy as np
 import re
 import sys
 import glob
+import netCDF4 as nc
 
 def bool2str(x):
     """
@@ -328,8 +329,9 @@ def parseromslog(fname):
         lnnum = lines.find('ROMS/TOMS: DONE')
         cleanrun = lnnum != -1
         
-        lnnum = lines.find('Blowing-up: Saving latest model state into  RESTART file')
-        blowup = lnnum != -1
+        lnnum1 = lines.find('Blowing-up: Saving latest model state into  RESTART file')
+        lnnum2 = lines.find('MAIN: Abnormal termination: BLOWUP')
+        blowup = (lnnum1 != -1) | (lnnum2 != -1)
     
     step = []
     lasthis = []
@@ -429,7 +431,9 @@ def runroms(rundata, mpiexe="mpirun", romsexe="oceanM", hostfile="",
 def createinputfiles(d, outbase, logbase, outdir='.', logdir='.', 
         indir = '.', bio={}, ice={}, stations={}, 
         oceanfile='ocean.tmp.in', bparfile='bio.tmp.in', 
-        iparfile='ice.tmp.in', sposfile='stations.tmp.in'):
+        iparfile='ice.tmp.in', sposfile='stations.tmp.in', count=1, 
+        addhiscount=False, addavgcount=False, addlogcount=False, 
+        addrstcount=False, addstacount=False, addfltcount=False):
     """
     Create ascii input files for a ROMS simulation
         
@@ -477,6 +481,7 @@ def createinputfiles(d, outbase, logbase, outdir='.', logdir='.',
                         parameter file (if stations passed as input)
                         default = 'stations.tmp.in'
         
+        
     Returns:
         dictionary object with the following keys:
         in:             path to ROMS standard input file
@@ -491,11 +496,30 @@ def createinputfiles(d, outbase, logbase, outdir='.', logdir='.',
     if not os.path.exists(outdir):
         os.makedirs(outdir)
     
-    d['RSTNAME'] = os.path.join(*(outdir, '{}_rst.nc'.format(outbase)))
-    d['HISNAME'] = os.path.join(*(outdir, '{}_his.nc'.format(outbase)))
-    d['AVGNAME'] = os.path.join(*(outdir, '{}_avg.nc'.format(outbase)))
-    d['STANAME'] = os.path.join(*(outdir, '{}_sta.nc'.format(outbase)))
-    d['FLTNAME'] = os.path.join(*(outdir, '{}_flt.nc'.format(outbase)))
+    if addrstcount:
+        d['RSTNAME'] = os.path.join(outdir, '{}_{:02d}_rst.nc'.format(outbase, count))
+    else:
+        d['RSTNAME'] = os.path.join(outdir, '{}_rst.nc'.format(outbase))
+    
+    if addhiscount:
+        d['HISNAME'] = os.path.join(outdir, '{}_{:02d}_his.nc'.format(outbase, count))
+    else:    
+        d['HISNAME'] = os.path.join(*(outdir, '{}_his.nc'.format(outbase)))
+    
+    if addavgcount:
+        d['AVGNAME'] = os.path.join(outdir, '{}_{:02d}_avg.nc'.format(outbase, count))
+    else:
+        d['AVGNAME'] = os.path.join(*(outdir, '{}_avg.nc'.format(outbase)))
+    
+    if addstacount:
+        d['STANAME'] = os.path.join(outdir, '{}_{:02d}_sta.nc'.format(outbase, count))
+    else:
+        d['STANAME'] = os.path.join(*(outdir, '{}_sta.nc'.format(outbase)))
+    
+    if addfltcount:
+        d['FLTNAME'] = os.path.join(outdir, '{}_{:02d}_flt.nc'.format(outbase, count))
+    else:
+        d['FLTNAME'] = os.path.join(*(outdir, '{}_flt.nc'.format(outbase)))
     
     # Create ascii input files
     
@@ -525,8 +549,12 @@ def createinputfiles(d, outbase, logbase, outdir='.', logdir='.',
     if not os.path.exists(logdir):
         os.makedirs(logdir)
     
-    logfile = os.path.join(*(logdir, 'out_{}.txt'.format(logbase)))
-    errfile = os.path.join(*(logdir, 'err_{}.txt'.format(logbase)))
+    if addlogcount:
+        logfile = os.path.join(*(logdir, 'out_{:02}_{}.txt'.format(count,logbase)))
+        errfile = os.path.join(*(logdir, 'err_{:02}_{}.txt'.format(count,logbase)))
+    else:
+        logfile = os.path.join(*(logdir, 'out_{}.txt'.format(logbase)))
+        errfile = os.path.join(*(logdir, 'err_{}.txt'.format(logbase)))
         
     # Return info necessary to run this ROMS simulation
     
@@ -640,9 +668,16 @@ def runromssmart(d, outbase, timevars, mpivars, logdir='.', outdir='.',
                         values in this dictionary.
                 
     Returns:
-        cleanexit:      logical scalar, True if ROMS exited the 
-                        simulation cleanly (this can include a blowup, as
-                        long as the code made it to "ROMS/TOMS Done")
+        cleanexit:      status of simulation on exit
+                        'dryrun':   ROMS executable was not called
+                        'success':  ROMS successfully reached the 
+                                    prescribed ending point
+                        'blowup_before_his": simulation reached a blowup 
+                                    prior to the first history file time 
+                                    point being written, so we can't back 
+                                    up and retry in slow mode
+                        'blowup':   ROMS blew up, even after attempting 
+                                    to decrease the step size
         
     """
     
@@ -703,7 +738,7 @@ def runromssmart(d, outbase, timevars, mpivars, logdir='.', outdir='.',
     print('Running {}'.format(outbasetmp))
     if dryrun:
         runroms(rundata, **mpivars, dryrun=True)
-        cleanexit = True
+        cleanexit = 'dryrun'
         return cleanexit
         
     runroms(rundata, **mpivars)
@@ -713,16 +748,25 @@ def runromssmart(d, outbase, timevars, mpivars, logdir='.', outdir='.',
     
     r = parseromslog(rundata['out'])
     
-    cleanexit = True
+    cleanexit = 'success'
     
     if not r['cleanrun']:
         print('ROMS crashed')
-        cleanexit = False
-        return
+        cleanexit = 'error'
+        return cleanexit
     
     # If it blew up...
     
     while r['blowup']:
+        
+        # Check if it blew up before we had a chance to write any time 
+        # steps to a history file.  If so, we need to exit
+        
+        f = nc.Dataset(r['lasthis'], 'r')
+        
+        if len(f.variables['ocean_time']) == 0:
+            cleanexit = 'blowup_before_his'
+            return cleanexit
         
         #---------------------
         # Run a slow-step run
@@ -732,7 +776,7 @@ def runromssmart(d, outbase, timevars, mpivars, logdir='.', outdir='.',
         
         count+=1
         
-        # Restart run, using last good history file for initialization
+        # Restart run, using last good history file for initialization 
         
         d['NRREC'] = -1
         d['ININAME'] = r['lasthis']
@@ -766,11 +810,12 @@ def runromssmart(d, outbase, timevars, mpivars, logdir='.', outdir='.',
         r = parseromslog(rundata['out'])
         if not r['cleanrun']:
             print('ROMS crashed')
-            cleanexit = False
+            cleanexit = 'error'
             return cleanexit
             
         if r['blowup']:
             print('ROMS blew up with slow step; stopping simulation')
+            cleanexit = 'blowup'
             return cleanexit
         
         # Switch back to fast time step and try to run until the end
@@ -801,7 +846,7 @@ def runromssmart(d, outbase, timevars, mpivars, logdir='.', outdir='.',
         r = parseromslog(rundata['out'])
         if not r['cleanrun']:
             print('ROMS crashed')
-            cleanexit = False
+            cleanexit = 'error'
             return cleanexit
     
     print('Done')
