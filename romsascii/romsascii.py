@@ -370,8 +370,7 @@ def reportstatus(logoutfile):
         print('Done: crashed, see {}'.format(logoutfile))
         sys.exit()
 
-def runroms(rundata, mpiexe="mpirun", romsexe="oceanM", hostfile="", 
-            dryrun=False):
+def runroms(rundata, mpiexe="mpirun", romsexe="oceanM", hostfile="",addnp=True,dryrun=False):
     """
     Run a ROMS simulation (without a system scheduler)
     
@@ -390,7 +389,9 @@ def runroms(rundata, mpiexe="mpirun", romsexe="oceanM", hostfile="",
         romsexe:        location of ROMS compiled executable
                         default = 'oceanM'
         hostfile:       path to host file (telling mpirun which 
-                        processors to use
+                        processors to use)
+        addnp:          true to include number of processors in mpirun 
+                        call
         dryrun:         true to run in dry run mode (prints mpirun 
                         subprocess command to screen), false to actually 
                         run it
@@ -404,20 +405,14 @@ def runroms(rundata, mpiexe="mpirun", romsexe="oceanM", hostfile="",
     
     # Set up main command
     
+    cmd = [mpiexe]
+    if addnp:
+        cmd.extend(['-np', str(rundata['np'])])
     if hostfile:
-        cmd = [mpiexe, 
-               '-np', str(rundata['np']),
-               '--hostfile', hostfile,
-               romsexe, 
-               rundata['in']
-           ]
-    else:
-        cmd = [mpiexe, 
-               '-np', str(rundata['np']),
-               romsexe, 
-               rundata['in']
-           ]
-                  
+        cmd.extend(['--hostfile', hostfile])
+        
+    cmd.extend([romsexe, rundata['in']])
+
     # Run ROMS via subprocess call (or print equivalent command to screen):
     
     if dryrun:
