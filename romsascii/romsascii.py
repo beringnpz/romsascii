@@ -440,8 +440,20 @@ def createinputfiles(d, outbase, logbase, outdir='.', logdir='.',
         
     Args:
         d:              ROMS parameter dictionary
-        outbase:        string, base for all output file names
-        logbase:        string, base for all log file names
+        outbase:        string, base for all output file names.  Output 
+                        files will be as follows, where YY indicates the 
+                        optional simulation count, and XXXXX indicates 
+                        the ROMS file counts (based on NDEFHIS/NDEFAVG 
+                        inputs)
+                        history:         outbase_[YY_]his_XXXXX.nc
+                        averages:        outbase_[YY_]avg_XXXXX.nc
+                        stations:        outbase_[YY_]sta.nc
+                        restart:         outbase_[YY_]rst.nc
+                        floats:          outbase_[YY_]flt.nc
+        logbase:        string, base for all log file names.  Log files 
+                        will be named as follows:
+                        standard output: out_[YY_]outbase.txt
+                        standard error:  err_[YY_]outbase.txt
     
     Optional keyword arguments:
         outdir:         path to folder where output files will be placed
@@ -475,8 +487,27 @@ def createinputfiles(d, outbase, logbase, outdir='.', logdir='.',
         sposfile:       filename for dynamically-generated stations 
                         parameter file (if stations passed as input)
                         default = 'stations.tmp.in'
-        
-        
+        count:          counter integer to be added to file names
+                        default = 1
+        addhiscount:    logical flag to add a simulation counter to the 
+                        history file names.
+                        default = False
+        addavgcount:    logical flag to add a simulation counter to the 
+                        average file names
+                        default = False
+        addlogcount:    logical flag to add a simulation counter to the 
+                        log file names
+                        default = False
+        addrstcount:    logical flag to add a simulation counter to the 
+                        restart file names
+                        default = False
+        addstacount:    logical flag to add a simulation counter to the 
+                        station file names
+                        default = False
+        addfltcount:    logical flag to add a simulation counter to the 
+                        float file names
+                        default = False
+
     Returns:
         dictionary object with the following keys:
         in:             path to ROMS standard input file
@@ -846,6 +877,67 @@ def runromssmart(d, outbase, timevars, mpivars, logdir='.', outdir='.',
     
     print('Done')
     return cleanexit
+    
+def findclosesttime(folder, targetdate):
+    """
+    Search folder for history file with time closest to the target date
+    
+    Args:
+        folder:     folder holding output of a BESTNPZ ROMS simulation,
+                    with history files matching the pattern *his*.nc.  
+                    Alternatively, can be a list of history filenames 
+                    (useful if you want to include a smaller subset from 
+                    within a folder)
+        targetdate: datenumber, target date
+    
+    Returns: 
+        dictionary with the following keys/values:
+            filename:   full path to history file including nearest date
+            idx:        time index within that file (0-based) of nearest 
+                        date
+            dt:         timedelta, time between nearest date and target 
+                        date
+            unit:       time units used in history file
+            cal:        calendar used by history file
+    """
+    
+    if (type(folder) is str) and os.path.isdir(folder):
+        hisfiles = glob.glob(os.path.join(*(folder, '*his*.nc')))
+    else:
+        hisfiles = folder
+
+    f = nc.Dataset(hisfiles[0], 'r')
+    tunit = f.variables['ocean_time'].units
+    tcal = f.variables['ocean_time'].calendar
+
+    dtmin = []
+    
+    d = {}
+    for fn in hisfiles:
+        try:
+            f = nc.Dataset(fn, 'r')
+            time = nc.num2date(f.variables['ocean_time'][:], units=tunit, calendar=tcal)
+
+            dt = abs(time - targetdate)
+    
+            if not d:
+                d['filename'] = fn
+                d['idx'] = np.argmin(dt)
+                d['dt'] = dt[d['idx']]
+                d['time'] = time[d['idx']]
+            else:
+                if min(dt) < d['dt']:
+                    d['filename'] = fn
+                    d['idx'] = np.argmin(dt)
+                    d['dt'] = dt[d['idx']]
+                    d['time'] = time[d['idx']]
+        except:
+            pass
+                
+    d['unit'] = tunit
+    d['cal'] = tcal
+                
+    return d
 
 
     
