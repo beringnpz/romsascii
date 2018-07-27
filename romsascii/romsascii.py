@@ -66,16 +66,26 @@ def consecutive(data, stepsize=0):
     tmp = [x.tolist() for x in tmp]
     return tmp
 
-def list2str(tmp):
+def list2str(tmp, consecstep=-99999):
     """
     Convert list of bools, floats, or integers to string
+    
+    Args:
+        tmp:        a list of either all bools, all floats, or all 
+                    integers
+        consecstep: step size to use for compression.  Default = -99999, 
+                    i.e. no compression; use 0 for ROMS-style compression 
+                    (i.e. T T T F -> 3*T F)
+    
+    Returns:
+        string, ROMS-appropriate string of inputs
     """
     if not (all(isinstance(x, float) for x in tmp) or
             all(isinstance(x, bool)  for x in tmp) or
             all(isinstance(x, int)   for x in tmp)):
         return tmp
     
-    consec = consecutive(tmp, stepsize=-99999)
+    consec = consecutive(tmp, stepsize=consecstep)
 
     consecstr = [None]*len(consec)
 
@@ -111,7 +121,7 @@ def checkforstring(x, prefix=''):
                 print('{}{}'.format(prefix, ky))
 
 
-def formatforascii(d):
+def formatforascii(d, consecstep=-99999):
     """
     Formats values in ROMS parameter dictionary for ascii input files
     
@@ -123,7 +133,9 @@ def formatforascii(d):
     applicable).  A few specific lists are converted to the appropriate tables.
     
     Args:
-        d:  ROMS parameter dictionary
+        d:          ROMS parameter dictionary
+        consecstep: step size used for collapsing long lists (use -99999 
+                    for none, 0 for typical ROMS)
     
     Returns:
         dictionary with the same keys as the input dictionary, but with values
@@ -145,9 +157,9 @@ def formatforascii(d):
                 # Forcing files: 1 per line
                 newdict[x] = '\n{:18s}'.format('').join(tmp)
             elif isinstance(tmp[0], list):
-                newdict[x] = [list2str(i) for i in tmp]
+                newdict[x] = [list2str(i, consecstep=consecstep) for i in tmp]
             else:
-                newdict[x] = list2str(tmp)
+                newdict[x] = list2str(tmp, consecstep=consecstep)
         elif isinstance(newdict[x], dict):
             if x == 'POS':
                 # Stations table
@@ -160,11 +172,11 @@ def formatforascii(d):
                         tablestr.append('{space:17s}{grid:4d} {flag:4d} {xpos:12d} {ypos:12d}'.format(space='',grid=tmp['GRID'][ii], flag=tmp['FLAG'][ii], xpos=tmp['X-POS'][ii], ypos=tmp['Y-POS'][ii]))
                 newdict[x] = '\n'.join(tablestr)
             else:
-                newdict[x] = formatforascii(newdict[x])
+                newdict[x] = formatforascii(newdict[x], consecstep=consecstep)
     
     return newdict
 
-def writeromsascii(d, fname, filetype='phys'):
+def writeromsascii(d, fname, filetype='phys', consecstep=-99999):
     """
     Create ROMS ascii file based on values in a dictionary
     
@@ -175,6 +187,8 @@ def writeromsascii(d, fname, filetype='phys'):
     Args:
         d:          ROMS parameter dictionary
         fname:      name of file to create
+        consecstep: step size used for collapsing long lists (use -99999 
+                    for none, 0 for typical ROMS). Default = -99999
     
     Optional keyword arguments:
         filetype:   type of file (used to determine which parameters need
@@ -182,7 +196,7 @@ def writeromsascii(d, fname, filetype='phys'):
                     not included, default is 'phys'.
     
     """
-    dstr = formatforascii(d)
+    dstr = formatforascii(d, consecstep=consecstep)
     
     with open(fname, 'w') as f:
         for ky in dstr:
@@ -607,7 +621,7 @@ def parserst(filebase):
                                 by 1 (i.e. count you would want to 
                                 restart with in runromssmart)
     """
-    allrst = sorted(glob.glob(os.path.join(filebase + "*rst*.nc")))
+    allrst = sorted(glob.glob(os.path.join(filebase + "_??_rst.nc")))
     if len(allrst) == 0:
         rst = []
         cnt = 1
