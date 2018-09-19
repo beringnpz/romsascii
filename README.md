@@ -16,9 +16,10 @@ Generic functions to create input files, run roms, and parse log files. This mod
 
 - **writeromsascii**: Dynamically generate ascii input files based on the parameters in a ROMS parameter dictionary
 - **runroms**: This function dynamically generates the ascii input files needed for a ROMS simulation (i.e. ocean.in) based on a ROMS parameter dictionary and then issues the mpirun command needed to start the run.
-- **runromssmart**: This provides a wrapper around runroms in order to take care of some of the setup and cleanup work for a ROMS simulation. In addition to generating input files and running mpirun, it checks to see if a simulation ran cleanly.  If it ran cleanly but hit a blowup point, it attempts to get past that point by restarting the simulation with a smaller timestep and running for one simulation month before resuming the original time step.  It also allows for restart of a simulation by scanning output folders for existing restart files and using the last one as the initialization file as applicable. 
-- **filltimevars**: Fill in time-related variables based on  dates and time interval values eliminating the need for manual calculation of number of time steps in variables such as NTIMES, NDEFHIS, etc. 
+- **filltimevars**: Fill in time-related variables based on  dates and time interval values, eliminating the need for manual calculation of number of time steps in variables such as NTIMES, NDEFHIS, etc. 
 - **parseromslog**: Parse the standard output file from a ROMS simulation to see if it ran cleanly, if it hit a blowup, what the last timestep recorded was, and what the last history file written to was.
+- **parserst**: Finds the name of and parses the simulation counter from a set of restart files, assuming files were created using the naming convention in runromssmart and its successors (i.e. filebase\_XX\_rst.nc).
+- **runromssmart**: DEPRECATED This was intended to be a wrapper around runroms in order to take care of some of the setup and cleanup work for a ROMS simulation. It turned out that this sort of thing was pretty computer- and simulation-specific (i.e. different for hindcasts, forecasts, spinup loops, etc.), so instead I've replaced this with the more application-specific functions in the moxroms module.
 
 ###defaultparams
 
@@ -32,11 +33,16 @@ This module includes functions to create default parameter dictionaries.  These 
 
 ###bering10kinput
 
-This module includes some very Bering 10K-specific functions.  They mostly serve as shortcuts so I can update .nc file locations and names all in one place.
+DEPRECATED  File naming conventions vary between simulation types and computers, so I've replaced this with functions in the moxroms module for now,
 
-- **ini\_frc\_bry**: locations of CORE and CFSR datasets
-- **other\_in**: locations of varinfo.dat, grid file, and default stations, biology, and ice (the latter three will often be overwritten via parameter dictionaries in user scripts, but I provide this default just in case).
-                         
+### moxroms
+
+This module handles some of the very computer- and simulation-specific stuff that I tend to do over and over.  Right now, that includes:
+
+- **setinfiles**: sets the GRDNAME, VARNAME, ININAME, FRCNAME, BRYNAME, and NFFILES parameters for a Bering 10K simulation on hyak-mox, automatically choosing the appropriate ones based on the time in the specified initialization file and a few other parameters (# layers, break year for CORE-to-CFS transition).
+- **runhindcast**: Runs a simulation with CORE-CFS hindcast input, taking care of all the messiness of switching up input files, checking for blowups, reducing and increasing timesteps, and resuming partially-completed runs.
+
+
 ## To build
 
 To rebuild in development mode:

@@ -404,8 +404,10 @@ def runroms(rundata, mpiexe="mpirun", romsexe="oceanM", hostfile="",addnp=True,d
                         default = 'oceanM'
         hostfile:       path to host file (telling mpirun which 
                         processors to use)
+                        default = ""
         addnp:          true to include number of processors in mpirun 
                         call
+                        default = True
         dryrun:         true to run in dry run mode (prints mpirun 
                         subprocess command to screen), false to actually 
                         run it
