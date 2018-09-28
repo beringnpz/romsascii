@@ -132,7 +132,7 @@ def runhindcast(ocean, simdir, simname, inifile, enddate, mpivars, timevars, fas
 
     if bio:
         bparfullfile =  os.path.join(*(indir, '{}.bio.in'.format(simname)))
-        r.writeromsascii(npz, bparfullfile, filetype='bio', consecstep=0) # need to compress the Hout flags to be readable past 80-ish characters
+        r.writeromsascii(bio, bparfullfile, filetype='bio', consecstep=0) # need to compress the Hout flags to be readable past 80-ish characters
         ocean['BPARNAM'] = bparfullfile
 
     if ice:
