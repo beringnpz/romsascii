@@ -438,9 +438,13 @@ def runforecast(ocean, simdir, simname, inifile, enddate, mpivars, timevars, fas
             fstep.close()
         
         else:
-            tini = setinfiles(ocean, rstinfo['lastfile'], ncinputfolder, nlayer=ocean['N'])
             ocean['ININAME'] = rstinfo['lastfile']
             ocean['NRREC'] = -1
+            
+            f = nc.Dataset(ocean['ININAME'], 'r')
+            tunit = f.variables['ocean_time'].units
+            tcal = f.variables['ocean_time'].calendar
+            tini = max(nc.num2date(f.variables['ocean_time'][:], units=tunit, calendar=tcal))
         
     # Print completion status message
         
