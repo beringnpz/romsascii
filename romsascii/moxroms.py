@@ -124,11 +124,11 @@ def runhindcast(ocean, simdir, simname, inifile, enddate, mpivars, timevars, fas
     # Create ascii input files that will be reused across all restarts
 
     if not os.path.exists(indir):
-        os.makedirs(indir, 0775)
+        os.makedirs(indir, 0o775)
     if not os.path.exists(outdir):
-        os.makedirs(outdir, 0775)
+        os.makedirs(outdir, 0o775)
     if not os.path.exists(logdir):
-        os.makedirs(logdir, 0775)
+        os.makedirs(logdir, 0o775)
 
     if bio:
         bparfullfile =  os.path.join(*(indir, '{}.bio.in'.format(simname)))
@@ -309,11 +309,11 @@ def runforecast(ocean, simdir, simname, inifile, enddate, mpivars, timevars, fas
     # Create ascii input files that will be reused across all restarts
 
     if not os.path.exists(indir):
-        os.makedirs(indir, 0775)
+        os.makedirs(indir, 0o775)
     if not os.path.exists(outdir):
-        os.makedirs(outdir, 0775)
+        os.makedirs(outdir, 0o775)
     if not os.path.exists(logdir):
-        os.makedirs(logdir, 0775)
+        os.makedirs(logdir, 0o775)
 
     if bio:
         bparfullfile =  os.path.join(*(indir, '{}.bio.in'.format(simname)))
