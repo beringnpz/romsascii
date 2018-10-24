@@ -299,6 +299,14 @@ def runforecast(ocean, simdir, simname, inifile, enddate, mpivars, timevars, fas
         ocean['ININAME'] = inifile
         ocean['NRREC'] = nrrec
         
+    # Check that all input files exist (better to do this here than let ROMS try and fail)
+    
+    for fl in ocean['FRCNAME']+ocean['GRDNAME']+ocean['VARNAME']+ocean['BRYNAME']+ocean['ININAME'] {
+        if not os.path.isfile(fl):
+            print('WARNING!: Cannot find file {}'.format(fl))
+            sys.exit()
+    }    
+        
     # Get starting time from initialization file
 
     f = nc.Dataset(ocean['ININAME'], 'r')
