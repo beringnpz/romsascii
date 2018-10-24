@@ -304,8 +304,7 @@ def runforecast(ocean, simdir, simname, inifile, enddate, mpivars, timevars, fas
     for fl in ocean['FRCNAME']+ocean['GRDNAME']+ocean['VARNAME']+ocean['BRYNAME']+ocean['ININAME']:
         if not os.path.isfile(fl):
             print('WARNING!: Cannot find file {}'.format(fl))
-            sys.exit()
-    }    
+            sys.exit()    
         
     # Get starting time from initialization file
 
