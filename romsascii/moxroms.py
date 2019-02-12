@@ -301,7 +301,7 @@ def runforecast(ocean, simdir, simname, inifile, enddate, mpivars, timevars, fas
         
     # Check that all input files exist (better to do this here than let ROMS try and fail)
     
-    for fl in ocean['FRCNAME']+ocean['GRDNAME']+ocean['VARNAME']+ocean['BRYNAME']+ocean['ININAME']:
+    for fl in ocean['FRCNAME']+[ocean['GRDNAME']]+[ocean['VARNAME']]+[ocean['BRYNAME']]+[ocean['ININAME']]:
         if not os.path.isfile(fl):
             print('WARNING!: Cannot find file {}'.format(fl))
             sys.exit()    
