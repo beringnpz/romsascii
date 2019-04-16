@@ -14,7 +14,7 @@ ROMS model on the mox-hyak (UW) computer.  It's very application-specific and no
 for general use.
 """
 
-def setinfiles(d, ininame, ncinputfolder,nlayer=10,breakyr=1995):
+def setinfiles(d, ininame, ncinputfolder,nlayer=10,breakyr=1995,setvinfo=True):
     """
     Modify input file name variables in parameter dict based on year
     This function is applicable to all hindcast runs
@@ -23,8 +23,10 @@ def setinfiles(d, ininame, ncinputfolder,nlayer=10,breakyr=1995):
     d['GRDNAME'] = os.path.join(ncinputfolder,'grd','Bering_grid_withFeast.nc')
 
     # BESTNPZ/FEAST varinfo file
-    d['VARNAME'] = os.path.join(ncinputfolder,'var','varinfo_bestnpzfeast_new.dat')
-
+    
+    if setvinfo:
+        d['VARNAME'] = os.path.join(ncinputfolder,'var','varinfo_bestnpzfeast_new.dat')
+        
     # Forcing files used for the entire timeperiod: SSS, tides,
     # runoff
     frcclim = ('tides_OTBS.nc',
@@ -89,7 +91,7 @@ def runhindcast(ocean, simdir, simname, inifile, enddate, mpivars, timevars, fas
                 nrrec=0, 
                 ncinputfolder='/gscratch/bumblereem/bering10k/input/',
                 dryrunflag=False,
-                bio={}, ice={}, stations={}):
+                bio={}, ice={}, stations={}, setvinfo=True):
     """
     Run the hindcast.  This takes care of all the messiness of switching up input files, 
     checking for blowups and reducing timesteps, and resuming partially-completed runs.
@@ -119,7 +121,7 @@ def runhindcast(ocean, simdir, simname, inifile, enddate, mpivars, timevars, fas
         
     # Set input files based on the initialization time
 
-    tini = setinfiles(ocean, ocean['ININAME'], ncinputfolder, nlayer=ocean['N'])
+    tini = setinfiles(ocean, ocean['ININAME'], ncinputfolder, nlayer=ocean['N'], setvinfo=setvinfo)
     
     # Create ascii input files that will be reused across all restarts
 
