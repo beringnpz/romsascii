@@ -956,7 +956,69 @@ def findclosesttime(folder, targetdate):
     return d
 
 
+def findclosesttimeafter(folder, targetdate):
+    """
+    Search folder for history file with time closest to the target date
     
+    Args:
+        folder:     folder holding output of a BESTNPZ ROMS simulation,
+                    with history files matching the pattern *his*.nc.  
+                    Alternatively, can be a list of history filenames 
+                    (useful if you want to include a smaller subset from 
+                    within a folder)
+        targetdate: datenumber, target date
+    
+    Returns: 
+        dictionary with the following keys/values:
+            filename:   full path to history file including nearest date
+            idx:        time index within that file (0-based) of nearest 
+                        date
+            dt:         timedelta, time between nearest date and target 
+                        date
+            unit:       time units used in history file
+            cal:        calendar used by history file
+    """
+    
+    if (type(folder) is str) and os.path.isdir(folder):
+        hisfiles = glob.glob(os.path.join(*(folder, '*his*.nc')))
+    else:
+        hisfiles = folder
+
+    f = nc.Dataset(hisfiles[0], 'r')
+    tunit = f.variables['ocean_time'].units
+    tcal = f.variables['ocean_time'].calendar
+
+    dtmin = []
+    
+    d = {}
+    for fn in hisfiles:
+        try:
+            f = nc.Dataset(fn, 'r')
+            time = nc.num2date(f.variables['ocean_time'][:], units=tunit, calendar=tcal)
+
+            dt = time - targetdate
+            dt[dt<0] = 9999
+    
+            if not d:
+                d['filename'] = fn
+                d['idx'] = np.argmin(dt)
+                d['dt'] = dt[d['idx']]
+                d['time'] = time[d['idx']]
+            else:
+                if min(dt) < d['dt']:
+                    d['filename'] = fn
+                    d['idx'] = np.argmin(dt)
+                    d['dt'] = dt[d['idx']]
+                    d['time'] = time[d['idx']]
+        except:
+            pass
+                
+    d['unit'] = tunit
+    d['cal'] = tcal
+                
+    return d
+
+
 
 
 
