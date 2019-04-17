@@ -248,7 +248,7 @@ def runhindcast(ocean, simdir, simname, inifile, enddate, mpivars, timevars, fas
                 allhis = sorted(list(set(allhis) - set([hisfile])))
                 hisfile = allhis[-1]
         
-            tini = setinfiles(ocean, hisfile, ncinputfolder, nlayer=ocean['N'])
+            tini = setinfiles(ocean, hisfile, ncinputfolder, nlayer=ocean['N'], setvinfo=setvinfo)
             ocean['ININAME'] = hisfile
             ocean['NRREC'] = -1
         
@@ -261,7 +261,7 @@ def runhindcast(ocean, simdir, simname, inifile, enddate, mpivars, timevars, fas
             fstep.close()
         
         else:
-            tini = setinfiles(ocean, rstinfo['lastfile'], ncinputfolder, nlayer=ocean['N'])
+            tini = setinfiles(ocean, rstinfo['lastfile'], ncinputfolder, nlayer=ocean['N'], setvinfo=setvinfo)
             ocean['ININAME'] = rstinfo['lastfile']
             ocean['NRREC'] = -1
         
