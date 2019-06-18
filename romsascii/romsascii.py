@@ -311,7 +311,7 @@ def filltimevars(d, tstep, datestart, dateend, tref,
     d['NSTA'] = int(dtsta.total_seconds()/tstep.total_seconds())
     d['NRST'] = int(dtrst.total_seconds()/tstep.total_seconds())
     d['NDEFHIS'] = int(dtdefhis.total_seconds()/tstep.total_seconds())
-    d['NDEFAVG'] = int(dtdefhis.total_seconds()/tstep.total_seconds())
+    d['NDEFAVG'] = int(dtdefavg.total_seconds()/tstep.total_seconds())
     
     dfrac = (tref - datetime(tref.year, tref.month, tref.day)).total_seconds()/86400.0
     datefloat = float('{year}{month:02d}{day:02d}'.format(year=tref.year, month=tref.month, day=tref.day))
