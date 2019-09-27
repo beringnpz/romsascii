@@ -444,11 +444,15 @@ def runforecast(ocean, simdir, simname, inifile, enddate, mpivars, timevars, fas
                 allhis = sorted(list(set(allhis) - set([hisfile])))
                 hisfile = allhis[-1]
         
-            tini = setinfiles(ocean, hisfile, ncinputfolder, nlayer=ocean['N'])
+            # tini = setinfiles(ocean, hisfile, ncinputfolder, nlayer=ocean['N'])
             ocean['ININAME'] = hisfile
             ocean['NRREC'] = -1
         
             # dateblewup = timevars['datestart'] + timedelta(seconds=rsim['laststep']*timevars['tstep'].total_seconds())
+            f = nc.Dataset(ocean['ININAME'], 'r')
+            tunit = f.variables['ocean_time'].units
+            tcal = f.variables['ocean_time'].calendar
+            tini = max(nc.num2date(f.variables['ocean_time'][:], units=tunit, calendar=tcal))
         
             t1 = tini.strftime('%Y-%m-%d-%H-%M:%S')
             t2 = (tini + timedelta(days=30)).strftime('%Y-%m-%d-%H-%M:%S')
