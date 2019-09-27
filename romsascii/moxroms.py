@@ -101,7 +101,8 @@ def runhindcast(ocean, simdir, simname, inifile, enddate, mpivars, timevars, fas
                 dryrunflag=False,
                 bio={}, ice={}, stations={}, 
                 setvinfo=True,
-                river='runoff.kearney.efol20.updated201809.nc'):
+                river='runoff.kearney.efol20.updated201809.nc'),
+                breakyr=1995):
     """
     Run the hindcast.  This takes care of all the messiness of switching up input files, 
     checking for blowups and reducing timesteps, and resuming partially-completed runs.
@@ -131,7 +132,7 @@ def runhindcast(ocean, simdir, simname, inifile, enddate, mpivars, timevars, fas
         
     # Set input files based on the initialization time
 
-    tini = setinfiles(ocean, ocean['ININAME'], ncinputfolder, nlayer=ocean['N'], setvinfo=setvinfo, river=river)
+    tini = setinfiles(ocean, ocean['ININAME'], ncinputfolder, nlayer=ocean['N'], setvinfo=setvinfo, river=river, breakyr=breakyr)
     
     # Create ascii input files that will be reused across all restarts
 
@@ -394,7 +395,7 @@ def runforecast(ocean, simdir, simname, inifile, enddate, mpivars, timevars, fas
                                
         # Run simulation bit
     
-        print('Running ROMS hindcast/nowcast')
+        print('Running ROMS forecast')
         print('  Counter block: {}'.format(cnt))
         print('  Start date: {}'.format(tini.strftime('%Y-%m-%d %H:%M:%S')))
         print('  End date:   {}'.format(timevars['dateend'].strftime('%Y-%m-%d %H:%M:%S')))
