@@ -101,7 +101,7 @@ def runhindcast(ocean, simdir, simname, inifile, enddate, mpivars, timevars, fas
                 dryrunflag=False,
                 bio={}, ice={}, stations={}, 
                 setvinfo=True,
-                river='runoff.kearney.efol20.updated201809.nc'),
+                river='runoff.kearney.efol20.updated201809.nc',
                 breakyr=1995):
     """
     Run the hindcast.  This takes care of all the messiness of switching up input files, 
