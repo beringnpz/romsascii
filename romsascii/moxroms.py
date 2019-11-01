@@ -20,7 +20,8 @@ def setinfiles(d, ininame, ncinputfolder,
                setvinfo=True,
                tide='tides_OTBS.nc',
                river='runoff.kearney.efol20.updated201809.nc',
-               sss='sss.clim.nc'):
+               sss='sss.clim.nc',
+               coreadjust=True):
     """
     Modify input file name variables in parameter dict based on year
     This function is applicable to all hindcast runs
@@ -72,14 +73,24 @@ def setinfiles(d, ininame, ncinputfolder,
     # Add year-specific forcing files to full-sim ones
     
     if yr < breakyr:
-        frc = [os.path.join(ncinputfolder,'hindcast_core', '{}'.format(yr), 'roms-core-atmos-lwrad-increased-{}.nc'.format(yr)),
-               os.path.join(ncinputfolder,'hindcast_core', '{}'.format(yr), 'roms-core-atmos-Pair-{}.nc'.format(yr)),
-               os.path.join(ncinputfolder,'hindcast_core', '{}'.format(yr), 'roms-core-atmos-Qair-{}.nc'.format(yr)),
-               os.path.join(ncinputfolder,'hindcast_core', '{}'.format(yr), 'roms-core-atmos-rain-{}.nc'.format(yr)),
-               os.path.join(ncinputfolder,'hindcast_core', '{}'.format(yr), 'roms-core-atmos-swrad-increased-{}.nc'.format(yr)),
-               os.path.join(ncinputfolder,'hindcast_core', '{}'.format(yr), 'roms-core-atmos-Tair-{}.nc'.format(yr)),
-               os.path.join(ncinputfolder,'hindcast_core', '{}'.format(yr), 'roms-core-atmos-Uwind-{}.nc'.format(yr)),
-               os.path.join(ncinputfolder,'hindcast_core', '{}'.format(yr), 'roms-core-atmos-Vwind-{}.nc'.format(yr))]
+        if coreadjust:
+            frc = [os.path.join(ncinputfolder,'hindcast_core', '{}'.format(yr), 'roms-core-atmos-lwrad-increased-{}.nc'.format(yr)),
+                   os.path.join(ncinputfolder,'hindcast_core', '{}'.format(yr), 'roms-core-atmos-Pair-{}.nc'.format(yr)),
+                   os.path.join(ncinputfolder,'hindcast_core', '{}'.format(yr), 'roms-core-atmos-Qair-{}.nc'.format(yr)),
+                   os.path.join(ncinputfolder,'hindcast_core', '{}'.format(yr), 'roms-core-atmos-rain-{}.nc'.format(yr)),
+                   os.path.join(ncinputfolder,'hindcast_core', '{}'.format(yr), 'roms-core-atmos-swrad-increased-{}.nc'.format(yr)),
+                   os.path.join(ncinputfolder,'hindcast_core', '{}'.format(yr), 'roms-core-atmos-Tair-{}.nc'.format(yr)),
+                   os.path.join(ncinputfolder,'hindcast_core', '{}'.format(yr), 'roms-core-atmos-Uwind-{}.nc'.format(yr)),
+                   os.path.join(ncinputfolder,'hindcast_core', '{}'.format(yr), 'roms-core-atmos-Vwind-{}.nc'.format(yr))]
+       else:
+           frc = [os.path.join(ncinputfolder,'hindcast_core', '{}'.format(yr), 'roms-core-atmos-lwrad-{}.nc'.format(yr)),
+                  os.path.join(ncinputfolder,'hindcast_core', '{}'.format(yr), 'roms-core-atmos-Pair-{}.nc'.format(yr)),
+                  os.path.join(ncinputfolder,'hindcast_core', '{}'.format(yr), 'roms-core-atmos-Qair-{}.nc'.format(yr)),
+                  os.path.join(ncinputfolder,'hindcast_core', '{}'.format(yr), 'roms-core-atmos-rain-{}.nc'.format(yr)),
+                  os.path.join(ncinputfolder,'hindcast_core', '{}'.format(yr), 'roms-core-atmos-swrad-{}.nc'.format(yr)),
+                  os.path.join(ncinputfolder,'hindcast_core', '{}'.format(yr), 'roms-core-atmos-Tair-{}.nc'.format(yr)),
+                  os.path.join(ncinputfolder,'hindcast_core', '{}'.format(yr), 'roms-core-atmos-Uwind-{}.nc'.format(yr)),
+                  os.path.join(ncinputfolder,'hindcast_core', '{}'.format(yr), 'roms-core-atmos-Vwind-{}.nc'.format(yr))]
     else: 
         frc = [os.path.join(ncinputfolder,'hindcast_cfs', '{}'.format(yr), 'roms-cfs-atmos-lwrad-{}.nc'.format(yr)),
                os.path.join(ncinputfolder,'hindcast_cfs', '{}'.format(yr), 'roms-cfs-atmos-Pair-{}.nc'.format(yr)),
@@ -102,7 +113,8 @@ def runhindcast(ocean, simdir, simname, inifile, enddate, mpivars, timevars, fas
                 bio={}, ice={}, stations={}, 
                 setvinfo=True,
                 river='runoff.kearney.efol20.updated201809.nc',
-                breakyr=1995):
+                breakyr=1995,
+                coreadjust=True):
     """
     Run the hindcast.  This takes care of all the messiness of switching up input files, 
     checking for blowups and reducing timesteps, and resuming partially-completed runs.
@@ -132,7 +144,7 @@ def runhindcast(ocean, simdir, simname, inifile, enddate, mpivars, timevars, fas
         
     # Set input files based on the initialization time
 
-    tini = setinfiles(ocean, ocean['ININAME'], ncinputfolder, nlayer=ocean['N'], setvinfo=setvinfo, river=river, breakyr=breakyr)
+    tini = setinfiles(ocean, ocean['ININAME'], ncinputfolder, nlayer=ocean['N'], setvinfo=setvinfo, river=river, breakyr=breakyr, coreadjust=coreadjust)
     
     # Create ascii input files that will be reused across all restarts
 
@@ -259,7 +271,7 @@ def runhindcast(ocean, simdir, simname, inifile, enddate, mpivars, timevars, fas
                 allhis = sorted(list(set(allhis) - set([hisfile])))
                 hisfile = allhis[-1]
         
-            tini = setinfiles(ocean, hisfile, ncinputfolder, nlayer=ocean['N'], setvinfo=setvinfo, river=river)
+            tini = setinfiles(ocean, hisfile, ncinputfolder, nlayer=ocean['N'], setvinfo=setvinfo, river=river, breakyr=breakyr, coreadjust=coreadjust)
             ocean['ININAME'] = hisfile
             ocean['NRREC'] = -1
         
@@ -272,7 +284,7 @@ def runhindcast(ocean, simdir, simname, inifile, enddate, mpivars, timevars, fas
             fstep.close()
         
         else:
-            tini = setinfiles(ocean, rstinfo['lastfile'], ncinputfolder, nlayer=ocean['N'], setvinfo=setvinfo, river=river)
+            tini = setinfiles(ocean, rstinfo['lastfile'], ncinputfolder, nlayer=ocean['N'], setvinfo=setvinfo, river=river, breakyr=breakyr, coreadjust=coreadjust)
             ocean['ININAME'] = rstinfo['lastfile']
             ocean['NRREC'] = -1
         
