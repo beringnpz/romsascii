@@ -82,7 +82,7 @@ def setinfiles(d, ininame, ncinputfolder,
                    os.path.join(ncinputfolder,'hindcast_core', '{}'.format(yr), 'roms-core-atmos-Tair-{}.nc'.format(yr)),
                    os.path.join(ncinputfolder,'hindcast_core', '{}'.format(yr), 'roms-core-atmos-Uwind-{}.nc'.format(yr)),
                    os.path.join(ncinputfolder,'hindcast_core', '{}'.format(yr), 'roms-core-atmos-Vwind-{}.nc'.format(yr))]
-       else:
+        else:
            frc = [os.path.join(ncinputfolder,'hindcast_core', '{}'.format(yr), 'roms-core-atmos-lwrad-{}.nc'.format(yr)),
                   os.path.join(ncinputfolder,'hindcast_core', '{}'.format(yr), 'roms-core-atmos-Pair-{}.nc'.format(yr)),
                   os.path.join(ncinputfolder,'hindcast_core', '{}'.format(yr), 'roms-core-atmos-Qair-{}.nc'.format(yr)),
