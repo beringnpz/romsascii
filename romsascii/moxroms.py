@@ -162,16 +162,19 @@ def runhindcast(ocean, simdir, simname, inifile, enddate, mpivars, timevars, fas
         bparfullfile =  os.path.join(*(indir, '{}.bio.in'.format(simname)))
         r.writeromsascii(bio, bparfullfile, filetype='bio', consecstep=0) # need to compress the Hout flags to be readable past 80-ish characters
         ocean['BPARNAM'] = bparfullfile
+        os.chmod(bparfullfile, 0o644)
 
     if ice:
         iparfullfile =  os.path.join(*(indir, '{}.ice.in'.format(simname)))
         r.writeromsascii(ice, iparfullfile, filetype='ice')
         ocean['IPARNAM'] = iparfullfile
+        os.chmod(iparfullfile, 0o644)
         
     if stations:
         sposfullfile =  os.path.join(*(indir, '{}.stations.in'.format(simname)))
         r.writeromsascii(stations, sposfullfile, filetype='stations')
         ocean['SPOSNAM'] = sposfullfile
+        os.chmod(sposfullfile, 0o644)
 
     # Create log file to document slow-stepping time periods
 
@@ -357,16 +360,19 @@ def runforecast(ocean, simdir, simname, inifile, enddate, mpivars, timevars, fas
         bparfullfile =  os.path.join(*(indir, '{}.bio.in'.format(simname)))
         r.writeromsascii(bio, bparfullfile, filetype='bio', consecstep=0) # need to compress the Hout flags to be readable past 80-ish characters
         ocean['BPARNAM'] = bparfullfile
+        os.chmod(bparfullfile, 0o644)
 
     if ice:
         iparfullfile =  os.path.join(*(indir, '{}.ice.in'.format(simname)))
         r.writeromsascii(ice, iparfullfile, filetype='ice')
         ocean['IPARNAM'] = iparfullfile
+        os.chmod(iparfullfile, 0o644)
         
     if stations:
         sposfullfile =  os.path.join(*(indir, '{}.stations.in'.format(simname)))
         r.writeromsascii(stations, sposfullfile, filetype='stations')
         ocean['SPOSNAM'] = sposfullfile
+        os.chmod(sposfullfile, 0o644)
 
     # Create log file to document slow-stepping time periods
 
