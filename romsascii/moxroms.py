@@ -37,7 +37,6 @@ def setinfiles(d, ininame, ncinputfolder,
     # Forcing files used for the entire timeperiod: SSS, tides,
     # runoff
     frcclim = (tide,
-               river,
                sss
                 )
     frcclim = list(map(lambda x: os.path.join(ncinputfolder,'generic',x), frcclim))
@@ -101,7 +100,7 @@ def setinfiles(d, ininame, ncinputfolder,
                os.path.join(ncinputfolder,'hindcast_cfs', '{}'.format(yr), 'roms-cfs-atmos-Uwind-{}.nc'.format(yr)),
                os.path.join(ncinputfolder,'hindcast_cfs', '{}'.format(yr), 'roms-cfs-atmos-Vwind-{}.nc'.format(yr))]
 
-    d['FRCNAME'] = frcclim + frc
+    d['FRCNAME'] = frcclim + frc + os.path.join(ncinputfolder, 'river', 'runoff_kearney_{}.nc'.format(yr))
     d['NFFILES'] = len(d['FRCNAME'])
     
     return tini
