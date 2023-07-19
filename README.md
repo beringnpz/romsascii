@@ -1,5 +1,12 @@
 #romsascii python package
 
+## DEPRECATED
+
+This toolbox is now deprecated and has been replaced by the [ROMS Communication Toolbox](https://github.com/beringnpz/romscom).  This code is no longer being maintained and is provided here for reference and back-compatibility only.
+
+## Description
+
+
 This package is designed to allow for programmatic organization of the many, many input variables associated with a ROMS simulation.  In typical ROMS use, these parameters are stored in an input file passed to the ROMS executable (typically named ocean.in, or some variant on that).  Additional input files are defined by variables within the ocean.in file itself (for example, the SPOSNAM variable holds the path to a file with all the station-related input variables.)
 
 All of the modules in this package are based on the concept of storing these input variables in a python dictionary rather than in static input files, and dynamically generating the properly-formatted input files on a per-simulation basis.  The goal is to allow all setup and running of ROMS simulation to be done in a single python script, allowing clear documentation of any modifications to input parameters, and easy replication of simulations without having to keep track of too many separate files.
